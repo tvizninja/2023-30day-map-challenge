@@ -6,6 +6,7 @@
 ## Theme
 
 - 1. Points, A map with points
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/01-points/viz/)
   - <https://geoshape.ex.nii.ac.jp/nrct/> の歴史地名の末尾一文字漢字に着目してプロット
 - 2. Lines, A map with lines
 - 3. Polygons, A map with polygons
