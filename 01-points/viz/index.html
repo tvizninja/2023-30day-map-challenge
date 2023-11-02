@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>01-points</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.js'></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    html, body, #map { height: 100% }
+    .maplibregl-popup-content { background-color: #222; text-shadow: 0 0 7px #fff, 0 0 10px #0af; font-size: large; }
+    table td { color: #eef; background-color: #001; }
+    table:hover tr:hover td { color: #dde; background-color: #223; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+app = {}
+
+// load data
+window.fetch('list.csv').then(r=>r.text()).then(txt=>{
+  // conert csv to geojson
+  app.data = (rows=>{
+    const t = a => a.split(",").map(b=>b.trim())
+    const header = t(rows.shift())
+    const ilat = header.reduce((a,b,i)=>b.match(/lat/i)?i:a, "")
+    const ilng = header.reduce((a,b,i)=>b.match(/lon/i)?i:a, "")
+    return {
+      type: 'FeatureCollection',
+      features: rows.map((row, i)=>({
+        type: 'Feature',
+        properties: {
+          ...Object.fromEntries(t(row).map((a,i)=>[header[i],a]))
+        },
+        geometry: {
+          type: 'Point',
+          coordinates: [parseFloat(t(row)[ilng]), parseFloat(t(row)[ilat])]
+        }
+      }))
+    }
+  })(txt.split("\n").filter(l=>l!=""))
+  // create dict
+  app.dict = app.data.features.reduce((a,b)=>{
+    const k = b.properties.lastchar
+    if(!a[k]){ a[k] = 0 }
+    ++a[k]
+    return a
+  }, {})
+  // fire event
+  app.map.fire('loadedData')
+})
+
+// UI
+class selectorControl {
+  constructor(props) { this.props = props }
+  onAdd(map) {
+    this.map = app.map
+    this.container = document.createElement('div')
+    this.container.style.margin = '8px'
+    this.container.style.pointerEvents = 'auto'
+    this.select = document.createElement('select')
+    const defopt = document.createElement('option')
+    defopt.value = 'all'
+    defopt.innerText = `all`
+    this.select.appendChild(defopt)
+    this.select.append(...Object.keys(this.props).sort((a,b)=>this.props[b]-this.props[a]).map(k=>{
+      const o = document.createElement('option')
+      o.value = k
+      o.innerText = `${k}(${this.props[k]})`
+      return o
+    }))
+    this.select.addEventListener('change', (event) => {
+      const t = event.target.value
+      if(t=='all'){
+        app.map.getSource('data').setData(app.data)
+      }else{
+        app.map.getSource('data').setData({
+          type: 'FeatureCollection',
+          features: app.data.features.filter(f=>f.properties.lastchar.match(t))
+        })
+      }
+    })
+    this.container.appendChild(this.select)
+    return this.container
+  }
+  onRemove(){
+    this.container.parentNode.removeChild(this.container);
+    this.map = undefined;
+  }
+}
+
+// map
+app.map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://demotiles.maplibre.org/style.json',
+  center: [135, 35],
+  zoom: 5
+})
+
+app.map.on('loadedData', ()=>{
+  app.map.on('load', ()=>{
+    app.map.addControl(new maplibregl.NavigationControl('top-right'))
+    app.map.addControl(new maplibregl.AttributionControl('bottom-right'))
+    app.map.addSource('data', {
+      type: 'geojson',
+      data: app.data
+    })
+    app.map.addLayer({
+      id: 'data',
+      type: 'circle',
+      source: 'data',
+      layout: {
+      },
+      paint: {
+        'circle-radius': [ "interpolate", ["linear"], ["zoom"], 8, 2, 18, 32 ],
+        'circle-color': '#224',
+      }
+    })
+  })
+  // interaction
+  app.map.on('click', 'data', e=>{
+    const c = e.features[0].geometry.coordinates.slice()
+    const p = e.features[0].properties
+    const h = [
+      "<table>",
+      ...(Object.keys(p).filter(k=>(p[k]!="")).map(k=>{
+        const v = p[k]
+        return `<tr><td>${k}</td><td>${v}</td></tr>`
+      })),
+      "</table>"
+    ].join("")
+    new maplibregl.Popup({'maxWidth':'320px'}).setLngLat(c).setHTML(h).addTo(app.map)
+  })
+  app.map.on('mouseenter', 'data', () => {
+    app.map.getCanvas().style.cursor = 'pointer';
+  });
+  app.map.on('mouseleave', 'data', () => {
+    app.map.getCanvas().style.cursor = '';
+  });
+  // add UI
+  app.map.addControl(new selectorControl(app.dict), 'top-left')
+})
+
+</script>
+
+</body>
+</html>
