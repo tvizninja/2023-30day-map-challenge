@@ -41,6 +41,7 @@ window.fetch('list.csv').then(r=>r.text()).then(txt=>{
       }))
     }
   })(txt.split("\n").filter(l=>l!=""))
+}).then(()=>{
   // create dict
   app.dict = app.data.features.reduce((a,b)=>{
     const k = b.properties.lastchar
@@ -48,9 +49,7 @@ window.fetch('list.csv').then(r=>r.text()).then(txt=>{
     ++a[k]
     return a
   }, {})
-  // fire event
-  app.map.fire('loadedData')
-})
+}).then(()=>app.map.fire('loadedData'))
 
 // UI
 class selectorControl {
@@ -60,10 +59,13 @@ class selectorControl {
     this.container = document.createElement('div')
     this.container.style.margin = '8px'
     this.container.style.pointerEvents = 'auto'
+    this.label = document.createElement('label')
+    this.label.innerText = 'select last-char of place-name: '
+    this.container.append(this.label)
     this.select = document.createElement('select')
     const defopt = document.createElement('option')
     defopt.value = 'all'
-    defopt.innerText = `all`
+    defopt.innerText = `all(exclude under count 100)`
     this.select.appendChild(defopt)
     this.select.append(...Object.keys(this.props).sort((a,b)=>this.props[b]-this.props[a]).map(k=>{
       const o = document.createElement('option')
@@ -96,7 +98,8 @@ app.map = new maplibregl.Map({
   container: 'map',
   style: 'https://gsi-cyberjapan.github.io/gsivectortile-mapbox-gl-js/pale.json',
   center: [135, 35],
-  zoom: 5
+  zoom: 4,
+  maxBounds: [[122, 20], [154, 46]]
 })
 
 app.map.on('loadedData', ()=>{
@@ -114,8 +117,8 @@ app.map.on('loadedData', ()=>{
       layout: {
       },
       paint: {
-        'circle-radius': [ "interpolate", ["linear"], ["zoom"], 8, 2, 18, 32 ],
-        'circle-color': '#224',
+        'circle-radius': [ "interpolate", ["linear"], ["zoom"], 8, 2, 16, 32 ],
+        'circle-color': '#822',
       }
     })
   })
