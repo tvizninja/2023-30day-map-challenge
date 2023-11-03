@@ -94,7 +94,7 @@ class selectorControl {
 // map
 app.map = new maplibregl.Map({
   container: 'map',
-  style: 'https://demotiles.maplibre.org/style.json',
+  style: 'https://gsi-cyberjapan.github.io/gsivectortile-mapbox-gl-js/pale.json',
   center: [135, 35],
   zoom: 5
 })
@@ -102,10 +102,10 @@ app.map = new maplibregl.Map({
 app.map.on('loadedData', ()=>{
   app.map.on('load', ()=>{
     app.map.addControl(new maplibregl.NavigationControl('top-right'))
-    app.map.addControl(new maplibregl.AttributionControl('bottom-right'))
     app.map.addSource('data', {
       type: 'geojson',
-      data: app.data
+      data: app.data,
+      attribution: '<a href="https://geoshape.ex.nii.ac.jp/nrct/" target="_blank">日本歴史地名大系(nii.ac.jp)</a>'
     })
     app.map.addLayer({
       id: 'data',
