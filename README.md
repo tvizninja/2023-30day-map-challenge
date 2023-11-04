@@ -12,6 +12,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/02-lines/viz/)
   - ボドゲ [TicketToRide](https://boardgamegeek.com/boardgame/9209/ticket-ride) の都市と路線を実際の地図にマッピング
 - 3. Polygons, A map with polygons
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/03-polygons/viz/)
+  - 国土数値情報より空港データ。クリックした地点の最寄り(直線距離)の空港をポップアップ。空港の地点データからボロノイ分割でポリゴン作成。
 - 4. A bad map, Let's get this over with
 - 5. Analog Map, Non-digital maps
 - 6. Asia, Largest of the continents

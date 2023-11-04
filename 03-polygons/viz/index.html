@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>03-polygons</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.js'></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    html, body, #map { height: 100% }
+    .maplibregl-popup-content { background-color: #222; text-shadow: 0 0 7px #fff, 0 0 10px #fa0; font-size: large; }
+    table td { color: #fee; background-color: #100; }
+    table:hover tr:hover td { color: #edd; background-color: #322; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+app = {
+  atype: {
+    '1': '拠点空港（会社管理）',
+    '2': '拠点空港（国管理空港）',
+    '3': '拠点空港（特定地方管理空港）',
+    '4': '地方管理空港',
+    '5': 'その他の空港',
+    '6': '共用空港'
+  }
+}
+
+// load data
+window.fetch('airport.geojson')
+  .then(r=>r.json())
+  .then(j=>app.points=j)
+  .then(()=>window.fetch('airport-v.geojson'))
+  .then(r=>r.json())
+  .then(j=>app.polygons=j)
+  .then(()=>app.map.fire('loadedData'))
+
+// map init
+app.map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://gsi-cyberjapan.github.io/gsivectortile-mapbox-gl-js/pale.json',
+  center: [135, 35],
+  zoom: 4,
+  maxBounds: [[122, 20], [154, 46]]
+})
+app.map.on('load', ()=>{
+  app.map.addControl(new maplibregl.NavigationControl('top-right'))
+})
+
+// dataviz
+app.map.on('loadedData', ()=>{
+  if(!app.map.isStyleLoaded()){
+    setTimeout(()=>app.map.fire('loadedData'), 500)
+  }else{
+    app.map.addSource('points', {
+      type: 'geojson',
+      data: app.points,
+      attribution: '<a href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-C28-v2_4.html" target="_blank">Airport data from mlit.go.jp</a>'
+    })
+    app.map.addSource('polygons', {
+      type: 'geojson',
+      data: app.polygons
+    })
+    app.map.addLayer({
+      id: 'points',
+      type: 'circle',
+      source: 'points',
+      paint: {
+        'circle-radius': [ "interpolate", ["linear"], ["zoom"], 4, 2, 10, 16 ],
+        'circle-color': '#22B'
+      }
+    })
+    app.map.addLayer({
+      id: 'polygons',
+      type: 'fill',
+      source: 'polygons',
+      paint: {
+        'fill-outline-color': '#222',
+        'fill-color': '#22B',
+        'fill-opacity': 0.2
+      }
+    })
+  }
+  app.map.on('click', 'polygons', e=>{
+    const f = e.features[0]
+    const i = f.properties['C28_000']
+    const p = app.points.features.filter(a=>a.properties['C28_000']==i)[0]
+    const c = {lat: p.geometry.coordinates[1], lng: p.geometry.coordinates[0]}
+    const h = `
+    <table>
+      <tr><td>name</td><td>${f.properties['C28_005']}</td></tr>
+      <tr><td>type</td><td>${app.atype[f.properties['C28_003']]}</td></tr>
+      <tr><td>status</td><td>${f.properties['C28_004']}</td></tr>
+    </table>
+    `
+    new maplibregl.Popup({'maxWidth':'320px'}).setLngLat(c).setHTML(h).addTo(app.map)
+    app.map.setPaintProperty('points', 'circle-color', ['match', ['get', 'C28_000'], i, '#B22', '#22B' ])
+    app.map.setPaintProperty('polygons', 'fill-color', ['match', ['get', 'C28_000'], i, '#B22', '#22B' ])
+  })
+  app.map.on('mouseenter', 'polygons', () => {
+    app.map.getCanvas().style.cursor = 'pointer';
+  });
+  app.map.on('mouseleave', 'polygons', () => {
+    app.map.getCanvas().style.cursor = '';
+  });
+})
+
+</script>
+
+</body>
+</html>
