@@ -15,6 +15,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/03-polygons/viz/)
   - 国土数値情報より空港データ。クリックした地点の最寄り(直線距離)の空港をポップアップ。空港の地点データからボロノイ分割でポリゴン作成。
 - 4. A bad map, Let's get this over with
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/04-badmap/viz/)
+  - 約3秒に一度カラースキーマがランダムな色に変更されてしまう地図。とても見づらい！stopボタンで停止。
 - 5. Analog Map, Non-digital maps
 - 6. Asia, Largest of the continents
 - 7. Navigation, A map that helps you to navigate

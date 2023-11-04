@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>04-badmap</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.js'></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    html, body, #map { height: 100% }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+app = {
+  period: 3 * 1000 // msec
+}
+
+// load data
+window.fetch('https://gsi-cyberjapan.github.io/gsivectortile-mapbox-gl-js/std.json')
+  .then(r=>r.json())
+  .then(j=>{
+    app.lines = j.layers.filter(l=>l.paint).filter(l=>l.paint['line-color']).map(l=>l.id)
+    app.fills = j.layers.filter(l=>l.paint).filter(l=>l.paint['fill-color']).map(l=>l.id)
+  })
+  .then(()=>app.map.fire('loadedData'))
+
+// UI
+class buttonControl {
+  constructor() {}
+  onAdd(map) {
+    this.map = app.map
+    this.container = document.createElement('div')
+    this.container.style.margin = '8px'
+    this.container.style.pointerEvents = 'auto'
+    this.button = document.createElement('button')
+    this.button.type = 'button'
+    this.button.innerText = 'stop change'
+    this.button.addEventListener('click', () => {
+      if(app.timer){ clearTimeout(app.timer) }
+    })
+    this.container.appendChild(this.button)
+    return this.container
+  }
+  onRemove(){
+    this.container.parentNode.removeChild(this.container);
+    this.map = undefined;
+  }
+}
+
+// map init
+app.map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://gsi-cyberjapan.github.io/gsivectortile-mapbox-gl-js/std.json',
+  center: [139.700, 35.659],
+  zoom: 16,
+  maxBounds: [[122, 20], [154, 46]]
+})
+app.map.on('load', ()=>{
+  app.map.addControl(new maplibregl.NavigationControl('top-right'))
+})
+
+// dataviz
+app.map.on('loadedData', ()=>{
+  if(!app.map.isStyleLoaded()){
+    setTimeout(()=>app.map.fire('loadedData'), 0.5*1000)
+  }else{
+    const cb = () => {
+      app.lines.map(id=>{
+        const c = '#'+(Math.random()).toString(16).slice(2,8)
+        app.map.setPaintProperty(id, 'line-color', c)
+      })
+      app.fills.map(id=>{
+        const c = '#'+(Math.random()).toString(16).slice(2,8)
+        app.map.setPaintProperty(id, 'fill-color', c)
+      })
+      app.timer = setTimeout(cb, app.period)
+    }
+    cb()
+    app.map.addControl(new buttonControl(), 'top-left')
+  }
+})
+</script>
+
+</body>
+</html>
