@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>02-lines</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.js'></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    html, body, #map { height: 100% }
+    .maplibregl-popup-content { text-shadow: 0 0 7px #eee, 0 0 4px #444; padding: 3px 2px}
+    button { display: none }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+app = {}
+
+// load data
+window.fetch('points.geojson')
+  .then(r=>r.json())
+  .then(j=>app.points=j)
+  .then(()=>window.fetch('lines.geojson'))
+  .then(r=>r.json())
+  .then(j=>app.lines=j)
+  .then(()=>{
+    const ctbl ={
+      'red': 'red',
+      'blue': 'lightskyblue',
+      'none': '#AAA',
+      'pink': 'pink',
+      'black': 'dimgrey',
+      'green': 'limegreen',
+      'white': '#DDD',
+      'orange': 'orange',
+      'yellow': 'gold'
+    }
+    app.lines.features.forEach(f=>f.properties.color = ctbl[f.properties.color])
+    app.lines.features.forEach(f=>{if(!f.properties.color){console.log(f)}})
+  })
+  .then(()=>app.map.fire('loadedData'))
+
+// map init
+app.map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://tiles.stadiamaps.com/styles/stamen_watercolor.json',
+  center: [-95, 40],
+  zoom: 3
+})
+app.map.on('load', ()=>{
+  app.map.addControl(new maplibregl.NavigationControl('top-right'))
+})
+
+// dataviz
+app.map.on('loadedData', ()=>{
+  if(!app.map.isStyleLoaded()){
+    setTimeout(()=>app.map.fire('loadedData'), 500)
+  }else{
+    app.map.addSource('points', {
+      type: 'geojson',
+      data: app.points,
+      attribution: '<a href="https://boardgamegeek.com/boardgame/9209/ticket-ride" target="_blank">Ticket to ride</a>'
+    })
+    app.map.addSource('lines', {
+      type: 'geojson',
+      data: app.lines
+    })
+    app.map.addLayer({
+      id: 'points',
+      type: 'circle',
+      source: 'points',
+      paint: {
+        'circle-radius': [ "interpolate", ["linear"], ["zoom"], 4, 4, 10, 32 ],
+        'circle-color': '#B22'
+      }
+    })
+    app.map.addLayer({
+      id: 'lines',
+      type: 'line',
+      source: 'lines',
+      layout: {
+      },
+      paint: {
+        'line-width': [ "interpolate", ["linear"], ["zoom"], 4, 4, 10, 32 ],
+        'line-color': ['get', 'color']
+      }
+    })
+    app.points.features.forEach(f=>{
+      const h = `<span>${f.properties.name}</span>`
+      const ll = {lng: f.geometry.coordinates[0], lat: f.geometry.coordinates[1]}
+      f.properties.popup = new maplibregl.Popup({'maxWidth':'320px'}).setLngLat(ll).setHTML(h).addTo(app.map)
+    })
+    app.map.on('click', 'points', e=>{
+      app.points.features.filter(f=>f.properties.name==e.features[0].properties.name)[0].properties.popup.addTo(app.map)
+    })
+    app.map.on('mouseenter', 'points', () => {
+      app.map.getCanvas().style.cursor = 'pointer';
+    });
+    app.map.on('mouseleave', 'points', () => {
+      app.map.getCanvas().style.cursor = '';
+    });
+  }
+})
+
+</script>
+
+</body>
+</html>

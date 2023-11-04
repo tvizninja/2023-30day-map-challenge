@@ -9,6 +9,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/01-points/viz/)
   - <https://geoshape.ex.nii.ac.jp/nrct/> の歴史地名の末尾一文字漢字に着目してプロット
 - 2. Lines, A map with lines
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/02-lines/viz/)
+  - ボドゲ [TicketToRide](https://boardgamegeek.com/boardgame/9209/ticket-ride) の都市と路線を実際の地図にマッピング
 - 3. Polygons, A map with polygons
 - 4. A bad map, Let's get this over with
 - 5. Analog Map, Non-digital maps
