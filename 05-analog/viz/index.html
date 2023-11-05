@@ -10,7 +10,6 @@
     body { margin: 0; padding: 0; }
     html, body, #map { height: 100% }
     .maplibregl-popup-content { text-shadow: 0 0 7px #eee, 0 0 4px #444; padding: 3px 2px}
-    div input {}
   </style>
 </head>
 <body>
@@ -71,8 +70,7 @@ class buttonControl {
 // map init
 app.map = new maplibregl.Map({
   container: 'map',
-  style: './ohm-japanese-scroll-map.json', // https://wiki.openstreetmap.org/wiki/OpenHistoricalMap/Reuse
-  //style: 'https://gsi-cyberjapan.github.io/gsivectortile-mapbox-gl-js/pale.json',
+  style: './ohm-japanese-scroll-map.json', // from https://wiki.openstreetmap.org/wiki/OpenHistoricalMap/Reuse
   center: [139.6, 35.6],
   zoom: 9,
   maxBounds: [[122, 20], [154, 46]]
@@ -90,9 +88,7 @@ app.map.on('style.load', ()=>{
     source: 'analog',
     minZoom: 8,
     maxZoom: 14,
-    paint: {
-      'raster-opacity': .5
-    }
+    paint: { 'raster-opacity': .5 }
   })
   if(!app.nc){
     app.nc = new maplibregl.NavigationControl('top-right')
