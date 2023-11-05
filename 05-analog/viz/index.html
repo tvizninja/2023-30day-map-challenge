@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>05-analog</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.js'></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    html, body, #map { height: 100% }
+    .maplibregl-popup-content { text-shadow: 0 0 7px #eee, 0 0 4px #444; padding: 3px 2px}
+    div input {}
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+app = {}
+
+// UI
+class sliderControl {
+  constructor(props) { this.props = props }
+  onAdd(map) {
+    this.map = app.map
+    this.container = document.createElement('div')
+    this.container.style.margin = '8px'
+    this.container.style.pointerEvents = 'auto'
+    this.container.className = 'maplibregl-ctrl'
+    this.label = document.createElement('label')
+    this.label.innerText = 'raster opacity: '
+    this.container.append(this.label)
+    this.slider = document.createElement('input')
+    this.slider.type = 'range'
+    this.slider.min = this.props.min | 0
+    this.slider.max = this.props.max | 100
+    this.slider.value = this.props.value | 50
+    this.slider.addEventListener('input', e => {
+      app.map.setPaintProperty('analog', 'raster-opacity', e.target.value/100)
+    })
+    this.container.appendChild(this.slider)
+    return this.container
+  }
+  onRemove(){
+    this.container.parentNode.removeChild(this.container);
+    this.map = undefined;
+  }
+}
+class buttonControl {
+  constructor(props) { this.props = props }
+  onAdd(map) {
+    this.map = app.map
+    this.container = document.createElement('div')
+    this.container.style.margin = '8px'
+    this.container.style.pointerEvents = 'auto'
+    this.button = document.createElement('button')
+    this.button.type = 'button'
+    this.button.innerText = this.props.label || 'GSI Map'
+    this.button.addEventListener('click', () => {
+      app.map.setStyle(this.props.url || 'https://gsi-cyberjapan.github.io/gsivectortile-mapbox-gl-js/pale.json', {diff: false})
+    })
+    this.container.appendChild(this.button)
+    return this.container
+  }
+  onRemove(){
+    this.container.parentNode.removeChild(this.container);
+    this.map = undefined;
+  }
+}
+
+// map init
+app.map = new maplibregl.Map({
+  container: 'map',
+  style: './ohm-japanese-scroll-map.json', // https://wiki.openstreetmap.org/wiki/OpenHistoricalMap/Reuse
+  //style: 'https://gsi-cyberjapan.github.io/gsivectortile-mapbox-gl-js/pale.json',
+  center: [139.6, 35.6],
+  zoom: 9,
+  maxBounds: [[122, 20], [154, 46]]
+})
+
+app.map.on('style.load', ()=>{
+  app.map.addSource('analog', {
+    type: 'raster',
+    tiles: [document.URL.split('/').slice(0,-1).join('/')+'/digidepo_1286636_noBundleName_2f662a12-9a0a-486e-9cde-6ad038ca3eb7/{z}/{x}/{y}.png'],
+    attribution: '<a href="https://doi.org/10.11501/1286636" target="_blank">〔伊能忠敬//測量・製作〕 『〔大日本沿海輿地全図 〕』第９０図　武蔵・下総・相模(武蔵・利根川口・東京・小仏・下総・相模・鶴間村),写, 〔明治６(１８７３)頃〕. 国立国会図書館デジタルコレクション https://dl.ndl.go.jp/pid/1286636 (参照 2023-11-05)</a>'
+  })
+  app.map.addLayer({
+    id: 'analog',
+    type: 'raster',
+    source: 'analog',
+    minZoom: 8,
+    maxZoom: 14,
+    paint: {
+      'raster-opacity': .5
+    }
+  })
+  if(!app.nc){
+    app.nc = new maplibregl.NavigationControl('top-right')
+    app.map.addControl(app.nc)
+    app.map.addControl(new sliderControl({}), 'top-left')
+    app.map.addControl(new buttonControl({}), 'top-left')
+    app.map.addControl(new buttonControl({label:'OSM Map', url:'./ohm-japanese-scroll-map.json'}), 'top-left')
+  }
+})
+
+</script>
+
+</body>
+</html>
