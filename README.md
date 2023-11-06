@@ -21,6 +21,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/05-analog/viz/)
   - 伊能忠敬地図の一部(東京周辺)を私がジオリファレンスしたもの(位置ずれの責は私にあり)を、現代の地図(GSI/OSM)と重ねて見る。
 - 6. Asia, Largest of the continents
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/06-asia/viz/)
+  - Asiaと言えばシルクロード…ただプロットしただけになってしまった。Mapbox SatelliteでflyToして見せたかったな。
 - 7. Navigation, A map that helps you to navigate
 - 8. Africa, Second-largest and second-most populous continent
 - 9. Hexagons, 6 sides, 6 angles, and 6 vertices
