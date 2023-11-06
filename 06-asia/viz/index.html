@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>06-asia</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.js'></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    html, body, #map { height: 100% }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+app = { gui : {} }
+
+// data load
+window.fetch('silkroad.geojson')
+  .then(r=>r.json())
+  .then(j=>{
+    app.roads = j
+  })
+  .then(()=>app.map.fire('loadedData'))
+
+// UI
+class sliderControl {
+  constructor(props) { this.props = props }
+  onAdd(map) {
+    this.map = app.map
+    this.container = document.createElement('div')
+    this.container.style.margin = '8px'
+    this.container.style.pointerEvents = 'auto'
+    this.container.className = 'maplibregl-ctrl'
+    this.label = document.createElement('label')
+    this.label.innerText = this.props.label || 'slider: '
+    this.container.append(this.label)
+    this.slider = document.createElement('input')
+    this.slider.type = 'range'
+    this.slider.min = this.props.min || 0
+    this.slider.max = this.props.max || 100
+    this.slider.step = this.props.step || 1
+    this.slider.value = this.props.value || this.slider.min
+    this.slider.addEventListener('input', this.props.cb?this.props.cb:(()=>{}))
+    this.container.appendChild(this.slider)
+    return this.container
+  }
+  getVal(){
+    return parseInt(this.slider.value, 10)
+  }
+  onRemove(){
+    this.container.parentNode.removeChild(this.container);
+    this.map = undefined;
+  }
+}
+
+// map init
+app.map = new maplibregl.Map({
+  container: 'map',
+  style: './woodblock.json',//./ohm-japanese-scroll-map.json', // from https://wiki.openstreetmap.org/wiki/OpenHistoricalMap/Reuse
+  center: [60, 30],
+  zoom: 2,
+  maxBounds: [[-30, -45], [160, 75]]
+})
+
+app.map.on('loadedData', ()=>{
+  if(!app.map.isStyleLoaded()){
+    setTimeout(()=>app.map.fire('loadedData'), 0.5*1000)
+  }else{
+    app.map.addSource('roads', {
+      type: 'geojson',
+      data: app.roads,
+      attribution: '<a href="http://dsr.nii.ac.jp/geography/" target="_blank">Silk Road Maps(dsr.nii.ac.jp)</a>'
+    })
+    app.map.addLayer({
+      id: 'roads',
+      type: 'line',
+      source: 'roads',
+      paint: {
+        'line-color': '#666',
+        'line-width': 3
+      }
+    })
+    app.gui.rn = new sliderControl({
+      label: 'select route',
+      min: 1,
+      max: app.roads.features.length,
+      value: 1,
+      cb : app.drawroads
+    })
+    app.gui.mv = new sliderControl({
+      label: 'move',
+      cb : app.drawroads
+    })
+    app.map.addControl(new maplibregl.NavigationControl('top-right'))
+    app.map.addControl(app.gui.rn, 'top-left')
+    app.map.addControl(app.gui.mv, 'top-left')
+    app.drawroads()
+  }
+})
+
+app.drawroads = e => {
+  const id = app.gui.rn.getVal() - 1
+  const mv = app.gui.mv.getVal()/100
+  app.map.setPaintProperty('roads', 'line-color', ['match', ['get', 'id'], id, '#f00', '#666'])
+  const ci = Math.floor(app.roads.features[id].geometry.coordinates.length * mv)
+  const ct = app.roads.features[id].geometry.coordinates[ci].slice(0, 2)
+  app.map.jumpTo({
+    zoom: (mv * 8) + 2,
+    center: ct
+  })
+}
+
+</script>
+
+</body>
+</html>
