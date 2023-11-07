@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>07-navigate</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.js'></script>
+  <script src='https://unpkg.com/@turf/turf@6.5.0/turf.min.js'></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    html, body { height: 100% }
+    #map { height: 80% }
+    #txt { height: 20% }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<div id="txt"><h1>Eho-navigator</h1><span>show happy-sushi-role direction</span></div>
+<script>
+
+app = {
+  eho: [255, 165, 345, 165, 75, 255, 165, 345, 165, 75],
+  gui: {},
+  pos: {
+    "type": "FeatureCollection",
+    "features": [{
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 0, 0 ]
+      }
+    }]
+  },
+  arr: {
+    "type": "FeatureCollection",
+    "features": [{
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [ [ 0, 0], [1, 1] ]
+      }
+    }]
+  },
+  getpos: opt => { // get location
+    return new Promise((resolve, reject)=>{
+      const options = {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0,
+        ...opt
+      }
+      navigator.geolocation.getCurrentPosition(resolve, reject, options)
+    })
+  }
+}
+
+// UI
+class sliderControl {
+  constructor(props) { this.props = props || {}}
+  onAdd(map) {
+    this.map = app.map
+    this.container = document.createElement('div')
+    this.container.style.margin = '8px'
+    this.container.style.pointerEvents = 'auto'
+    this.container.style.backgroundColor = '#fff'
+    this.container.className = 'maplibregl-ctrl'
+    this.label = document.createElement('label')
+    this.label.innerText = this.props.label || 'slider: '
+    this.container.append(this.label)
+    this.slider = document.createElement('input')
+    this.slider.type = 'range'
+    const v = parseInt((this.props.value || (new Date()).getFullYear()), 10)
+    this.slider.min = this.props.min || (v - 24)
+    this.slider.max = this.props.max || (v + 24)
+    this.slider.value = v
+    const upd = e => {
+      this.label.innerText = `${parseInt(this.slider.value, 10)}: `
+      this.props.cb?this.props.cb():0
+    }
+    this.slider.addEventListener('input', upd)
+    this.container.appendChild(this.slider)
+    upd()
+    return this.container
+  }
+  getVal(){
+    return parseInt(this.slider.value, 10)
+  }
+  onRemove(){
+    this.container.parentNode.removeChild(this.container);
+    this.map = undefined;
+  }
+}
+
+// map
+app.map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://gsi-cyberjapan.github.io/gsivectortile-mapbox-gl-js/pale.json',
+  center: [135, 35],
+  zoom: 4
+})
+
+app.map.on('load', ()=>{
+  app.map.addSource('pos', {
+    type: 'geojson',
+    data: app.pos
+  })
+  app.map.addSource('arr', {
+    type: 'geojson',
+    data: app.arr,
+  })
+  app.map.addLayer({
+    id: 'pos',
+    type: 'circle',
+    source: 'pos',
+    paint: {
+      'circle-radius': 10,
+      'circle-color': '#844'
+    }
+  })
+  app.map.addLayer({
+    id: 'arr',
+    type: 'line',
+    source: 'arr',
+    paint: {
+      'line-color': '#844',
+      'line-width': 6
+    }
+  })
+  app.map.addControl(new maplibregl.NavigationControl('top-right'))
+  // add UI
+  app.gui.sli = new sliderControl({
+    cb: () => {
+      app.getpos().then(p=>{
+        const eho = app.eho[app.gui.sli.getVal()%10]
+        const ct = turf.point([p.coords.longitude, p.coords.latitude])
+        const to = turf.transformTranslate(ct, 1, eho)
+        app.map.getSource('pos').setData(ct)
+        app.map.getSource('arr').setData(turf.lineString([turf.getCoord(ct), turf.getCoord(to)]))
+        app.map.flyTo({
+          center: ct.geometry.coordinates,
+          zoom: 14
+        })
+      })
+    }
+  })
+  app.map.addControl(app.gui.sli, 'top-left')
+})
+
+</script>
+
+</body>
+</html>
