@@ -24,9 +24,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/06-asia/viz/)
   - Asiaと言えばシルクロード…ただプロットしただけになってしまった。Mapbox SatelliteでflyToして見せたかったな。
 - 7. Navigation, A map that helps you to navigate
-  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/07-asia/viz/)
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/07-navigation/viz/)
   - 節分に必要な、現在地から恵方を確認するナビゲータ。そもそも4方向しかなくて、5年(名称上は10年)で1周すること知らなかった。
-  - Asiaと言えばシルクロード…ただプロットしただけになってしまった。Mapbox SatelliteでflyToして見せたかったな。
 - 8. Africa, Second-largest and second-most populous continent
 - 9. Hexagons, 6 sides, 6 angles, and 6 vertices
 - 10. North America, Northern part of the American continent
