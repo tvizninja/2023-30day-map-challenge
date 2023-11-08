@@ -27,6 +27,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/07-navigation/viz/)
   - 節分に必要な、現在地から恵方を確認するナビゲータ。そもそも4方向しかなくて、5年(名称上は10年)で1周すること知らなかった。
 - 8. Africa, Second-largest and second-most populous continent
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/08-africa/viz/)
+  - アフリカを見るとき、緯度の感覚がイマイチつかめないので、日本と南半球ミラー日本を同時に表示し、日本のココとアフリカのココが同緯度なのか～と感じるための地図。
 - 9. Hexagons, 6 sides, 6 angles, and 6 vertices
 - 10. North America, Northern part of the American continent
 - 11. Retro, A blast from the past
