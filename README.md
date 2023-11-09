@@ -30,6 +30,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/08-africa/viz/)
   - アフリカを見るとき、緯度の感覚がイマイチつかめないので、日本と南半球ミラー日本を同時に表示し、日本のココとアフリカのココが同緯度なのか～と感じるための地図。
 - 9. Hexagons, 6 sides, 6 angles, and 6 vertices
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/09-hexagon/viz/hex-japan.svg)
+  - やりたかったことに手こずってしまったので、過去ネタの再掲…紅に染まれっ！Hex Japan！
 - 10. North America, Northern part of the American continent
 - 11. Retro, A blast from the past
 - 12. South America, Southern part of the American continent
