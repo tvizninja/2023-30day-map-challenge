@@ -23,6 +23,7 @@ app.map = new maplibregl.Map({
   style: './woodblock.json', // from https://wiki.openstreetmap.org/wiki/OpenHistoricalMap/Reuse
   center: [-100, 30],
   maxBounds: [[-140, -10], [-60, 70]],
+  maxZoom: 8,
   zoom: 2
 })
 app.map.on('load', ()=>{
