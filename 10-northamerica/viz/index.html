@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>10-northamerica</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.js'></script>
+  <script src='https://unpkg.com/pmtiles@2.5.0/dist/index.js'></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    html, body, #map { height: 100% }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+app = {}
+
+// map init
+app.map = new maplibregl.Map({
+  container: 'map',
+  style: './woodblock.json', // from https://wiki.openstreetmap.org/wiki/OpenHistoricalMap/Reuse
+  center: [-100, 30],
+  maxBounds: [[-140, -10], [-60, 70]],
+  zoom: 2
+})
+app.map.on('load', ()=>{
+  app.map.addControl(new maplibregl.NavigationControl('top-right'))
+})
+
+app.protocol = new pmtiles.Protocol();
+maplibregl.addProtocol("pmtiles", app.protocol.tile);
+
+// dataviz
+app.map.on('style.load', ()=>{
+  // memo:  tippecanoe -z8 river.pmtiles -l river -pC --drop-densest-as-needed river.geojson
+  app.map.addSource('river', {
+    type: 'vector',
+    url: "pmtiles://"+document.URL.split('/').slice(0,-1).join('/')+"/river.pmtiles",
+    attribution: '<a href="https://www.hydrosheds.org/products/hydrorivers" target="_blank">hydrosheds.org/</a>'
+  })
+  /* app.map.addSource('river', {
+    type: 'vector',
+    tiles: [document.URL.split('/').slice(0,-1).join('/') + "/river/{z}/{x}/{y}.pbf"],
+    attribution: '<a href="https://www.hydrosheds.org/products/hydrorivers" target="_blank">hydrosheds.org/</a>'
+  }) */
+  app.map.addLayer({
+    id: 'river',
+    type: 'line',
+    source: 'river',
+    "source-layer": 'river',
+    paint: {
+      'line-color': ['get', 'color']
+    }
+  })
+})
+
+</script>
+
+</body>
+</html>

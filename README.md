@@ -33,6 +33,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/09-hexagon/viz/hex-japan.svg)
   - やりたかったことに手こずってしまったので、過去ネタの再掲…紅に染まれっ！Hex Japan！
 - 10. North America, Northern part of the American continent
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/10-northamerica/viz/)
+  - [hydrosheds.org](https://www.hydrosheds.org/products/hydrorivers)のデータから。同じMAIN_RIVを同じ色で。美し～
 - 11. Retro, A blast from the past
 - 12. South America, Southern part of the American continent
 - 13. Choropleth, Classic thematic map: a choropleth
