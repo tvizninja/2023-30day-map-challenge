@@ -36,7 +36,7 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/10-northamerica/viz/)
   - [hydrosheds.org](https://www.hydrosheds.org/products/hydrorivers)のデータから。同じMAIN_RIVを同じ色で。美し～
 - 11. Retro, A blast from the past
-  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/10-retro/viz/)
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/11-retro/viz/)
   - 昔のゲーム機をイメージして、解像度と色数を落とした地理院Seamlessphoto地図。
 - 12. South America, Southern part of the American continent
 - 13. Choropleth, Classic thematic map: a choropleth
