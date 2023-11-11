@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>11-retro</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.js'></script>
+  <style>
+    html, body, #map { height: 100% }
+    body { margin: 0; padding: 0; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+app = {}
+
+// UI
+class sliderControl {
+  constructor(props) { this.props = props || {}}
+  onAdd(map) {
+    this.map = app.map
+    this.container = document.createElement('div')
+    this.container.style.margin = '8px'
+    this.container.style.pointerEvents = 'auto'
+    this.container.style.backgroundColor = '#fff'
+    this.container.className = 'maplibregl-ctrl'
+    this.label = document.createElement('label')
+    this.label.innerText = this.props.label || 'slider: 16'
+    this.container.append(this.label)
+    this.slider = document.createElement('input')
+    this.slider.type = 'range'
+    this.slider.min = this.props.min || 0
+    this.slider.max = this.props.max || 4
+    this.slider.value = 4
+    const upd = e => {
+      this.label.innerText = `slider: ${this.getVal()}`
+      this.props.cb?this.props.cb():0
+    }
+    this.slider.addEventListener('change', upd)
+    this.container.appendChild(this.slider)
+    upd()
+    return this.container
+  }
+  getVal(){
+    return Math.pow(2, parseInt(this.slider.value, 10))
+  }
+  onRemove(){
+    this.container.parentNode.removeChild(this.container);
+    this.map = undefined;
+  }
+}
+
+// add protocol
+maplibregl.addProtocol('custom', (params, callback) => {
+  const mlim = Math.asin(Math.tanh(Math.PI))/Math.PI * 180 // limit of web-mercator
+  const [z, x, y] = params.url.split('/').slice(2, 5).map(a=>parseInt(a.replace(/[^0-9]/g, ''), 10))
+  const image = new Image()
+  image.crossOrigin = ''
+  image.onload = () => {
+    const canvas = document.createElement('canvas')
+    canvas.width = image.width
+    canvas.height = image.height
+    const res = Math.min(image.width, image.height)
+    const ctx = canvas.getContext('2d')
+    ctx.drawImage(image, 0, 0)
+    const imd = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    const pix = imd.data
+    const r = app.gui?.sli?.getVal() || 16
+    const n = res/r //32
+    for(let i=0; i<n*n; i++){
+      const bx = i%n
+      const by = Math.floor(i/n)
+      let [ar, ag, ab] = [0, 0, 0] // ave r, g, b
+      for(let j=0; j<r; j++){
+        for(let k=0; k<r; k++){
+          ar += pix[4*(bx*r + by*res*r + j + res*k)+0]/(r*r)
+          ag += pix[4*(bx*r + by*res*r + j + res*k)+1]/(r*r)
+          ab += pix[4*(bx*r + by*res*r + j + res*k)+2]/(r*r)
+        }
+      }
+      for(let j=0; j<r; j++){
+        for(let k=0; k<r; k++){
+          pix[4*(bx*r + by*res*r + j + res*k)+0] = Math.floor(ar/(2*r))*(2*r)
+          pix[4*(bx*r + by*res*r + j + res*k)+1] = Math.floor(ag/(2*r))*(2*r)
+          pix[4*(bx*r + by*res*r + j + res*k)+2] = Math.floor(ab/(2*r))*(2*r)
+        }
+      }
+    }
+    ctx.putImageData(imd, 0, 0);
+    canvas.toBlob((blob) =>
+      blob.arrayBuffer().then((arr) => callback(null, arr, null, null)),
+    )
+  }
+  image.src = `https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/${z}/${x}/${y}.jpg`
+  return { cancel: () => {} }
+})
+
+// map init
+app.map = new maplibregl.Map({
+  container: 'map',
+  style: {
+    "version": 8,
+    "glyphs":"https://maps.gsi.go.jp/xyz/noto-jp/{fontstack}/{range}.pbf",
+    "sources": {
+      "gsi": {
+        "type": "raster",
+        "tiles": [ "custom://{z}/{x}/{y}.jpg" ],
+        "minzoom": 4,
+        "maxzoom": 18,
+        "attribution": "<a href=\"https://maps.gsi.go.jp/development/ichiran.html\" target=\"_blank\">地理院地タイル</a>"
+      }
+    },
+    "layers": [
+      {
+        "id": "gsi",
+        "type": "raster",
+        "source": "gsi"
+      }
+    ]
+  },
+  center: [135, 35],
+  maxZoom: 18,
+  maxBounds: [[122, 20], [154, 46]],
+  zoom: 4
+})
+app.map.on('load', ()=>{
+  app.map.addControl(new maplibregl.NavigationControl('top-right'))
+  app.gui = {
+    sli: new sliderControl({
+      cb: () => {
+        const l = app.map.getLayer('gsi')
+        app.map.removeLayer('gsi')
+        app.map.addLayer({id: l.id, source: l.source, type: l.type})
+      }
+    })
+  }
+  app.map.addControl(app.gui.sli, 'top-left')
+})
+
+</script>
+</body>
+</html>
