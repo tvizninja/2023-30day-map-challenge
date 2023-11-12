@@ -39,6 +39,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/11-retro/viz/)
   - 昔のゲーム機をイメージして、解像度と色数を落とした地理院Seamlessphoto地図。
 - 12. South America, Southern part of the American continent
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/12-southamerica/viz/)
+  - [hydrosheds.org](https://www.hydrosheds.org/products/hydrorivers)のデータから。10日目と同じに見えるけど、前回はpmtiles、今回はベクトルタイルで…
 - 13. Choropleth, Classic thematic map: a choropleth
 - 14. Europe, The westernmost peninsulas of Eurasia
 - 15. OpenStreetMap, The greatest of the datasets. Remember to give credit.

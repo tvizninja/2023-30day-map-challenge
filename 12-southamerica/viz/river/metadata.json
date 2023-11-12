@@ -1,0 +1,16 @@
+{
+"name": "river",
+"description": "river",
+"version": "2",
+"minzoom": "0",
+"maxzoom": "8",
+"center": "-76.640625,4.915464,8",
+"bounds": "-91.656250,-55.877083,-34.793750,14.877083",
+"antimeridian_adjusted_bounds": "-91.656250,-55.877083,-34.793750,14.877083",
+"type": "overlay",
+"strategies": "[{\"dropped_as_needed\":1565449,\"tile_size_desired\":3616660,\"feature_count_desired\":491014},{\"dropped_as_needed\":1988061,\"tile_size_desired\":3582875,\"feature_count_desired\":495868},{\"dropped_as_needed\":1792186,\"tile_size_desired\":3693704,\"feature_count_desired\":499042},{\"dropped_as_needed\":1720005,\"tile_size_desired\":3592335,\"feature_count_desired\":499925},{\"dropped_as_needed\":1682921,\"tile_size_desired\":3867580,\"feature_count_desired\":500001},{\"dropped_as_needed\":1479128,\"tile_size_desired\":3724984,\"feature_count_desired\":256539},{\"dropped_as_needed\":1061921,\"tile_size_desired\":1702193},{},{}]",
+"format": "pbf",
+"generator": "tippecanoe v2.37.0",
+"generator_options": "tippecanoe -z8 -e river -l river -pC --drop-densest-as-needed riverc.geojson",
+"json": "{\"vector_layers\":[{\"id\":\"river\",\"description\":\"\",\"minzoom\":0,\"maxzoom\":8,\"fields\":{\"color\":\"String\"}}],\"tilestats\":{\"layerCount\":1,\"layers\":[{\"layer\":\"river\",\"count\":1620963,\"geometry\":\"LineString\",\"attributeCount\":1,\"attributes\":[{\"attribute\":\"color\",\"count\":1000,\"type\":\"string\",\"values\":[\"#000041\",\"#000768\",\"#001202\",\"#00191d\",\"#001dc8\",\"#001e64\",\"#0023ca\",\"#00278d\",\"#00281c\",\"#003546\",\"#003970\",\"#003df4\",\"#003f5e\",\"#0049a4\",\"#004c1d\",\"#004c58\",\"#00513b\",\"#005210\",\"#0052e5\",\"#0056ab\",\"#005c3e\",\"#006a2f\",\"#006af3\",\"#006bca\",\"#0073ea\",\"#0075b4\",\"#007ba6\",\"#007dcd\",\"#00830a\",\"#008446\",\"#0089fc\",\"#009664\",\"#0099f7\",\"#009ac6\",\"#009aff\",\"#009bd3\",\"#009ca2\",\"#009cc8\",\"#009f98\",\"#00a00f\",\"#00a17f\",\"#00a716\",\"#00a76f\",\"#00b228\",\"#00b428\",\"#00b604\",\"#00b7e3\",\"#00bc6c\",\"#00be07\",\"#00c19b\",\"#00c506\",\"#00ca5a\",\"#00ce8a\",\"#00e309\",\"#00e80b\",\"#00e82e\",\"#00edc0\",\"#00ee21\",\"#00ee43\",\"#00f16c\",\"#00f260\",\"#00fabd\",\"#00fbfa\",\"#0103a6\",\"#0107e0\",\"#01103c\",\"#01162b\",\"#011ade\",\"#011bc0\",\"#012051\",\"#01226e\",\"#01276d\",\"#01284f\",\"#012a5b\",\"#012fbb\",\"#013fc8\",\"#01567a\",\"#015c2d\",\"#01635b\",\"#016764\",\"#016786\",\"#016e40\",\"#017038\",\"#0172e4\",\"#017ea6\",\"#01871b\",\"#0188e5\",\"#018b09\",\"#018cb7\",\"#018de9\",\"#018e3c\",\"#01901d\",\"#019359\",\"#019a43\",\"#019e7a\",\"#019f7b\",\"#01a60c\",\"#01aabf\",\"#01bc3c\",\"#01bdad\"]}]}]}}"
+}
