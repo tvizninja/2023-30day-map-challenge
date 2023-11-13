@@ -42,6 +42,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/12-southamerica/viz/)
   - [hydrosheds.org](https://www.hydrosheds.org/products/hydrorivers)のデータから。10日目と同じに見えるけど、前回はpmtiles、今回はベクトルタイルで…
 - 13. Choropleth, Classic thematic map: a choropleth
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/13-choropleth/viz/)
+  - シンプルに、国のcentroidの緯度が高い所ほど暗く塗分け。
 - 14. Europe, The westernmost peninsulas of Eurasia
 - 15. OpenStreetMap, The greatest of the datasets. Remember to give credit.
 - 16. Oceania Region, made up of thousands of islands throughout the Central and South Pacific

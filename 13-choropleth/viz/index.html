@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <title>13-choropleth</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.js'></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    html, body, #map { height: 100% }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+app = {}
+
+// map init
+app.map = new maplibregl.Map({
+  container: 'map',
+  style: {
+    "version": 8,
+    "name": "background",
+    "sources": {},
+    "layers": [{
+      "id": "background",
+      "type": "background",
+      "layout": {"visibility": "visible"},
+      "paint": { "background-color": "rgba(4, 4, 4, 0.9)" }
+    }]
+  },
+  center: [0, -0],
+  maxZoom: 8,
+  zoom: 1
+})
+app.map.on('load', ()=>{
+  app.map.addControl(new maplibregl.NavigationControl('top-right'))
+})
+
+// load data
+window.fetch('naturalearth-50m.geojson')
+  .then(r=>r.json())
+  .then(j=>app.gj=j)
+  .then(()=>app.map.fire('loadedData'))
+
+// dataviz
+app.map.on('loadedData', ()=>{
+  if(!app.map.isStyleLoaded()){
+    setTimeout(()=>app.map.fire('loadedData'), 500)
+  }else{
+    app.map.addSource('world', {
+      type: 'geojson',
+      data: app.gj,
+      attribution: '<a href="https://www.naturalearthdata.com/downloads/50m-cultural-vectors/" target="_blank">naturalearthdata.com</a>'
+    })
+    app.map.addLayer({
+      id: 'world',
+      type: 'fill',
+      source: 'world',
+      paint: {
+        'fill-outline-color': '#444',
+        'fill-color': ['rgb', ['-', 255, ['*', 2.5, ['abs', ['get', 'centrelat']]]], ['-', 255, ['*', 2.5, ['abs', ['get', 'centrelat']]]], ['-', 255, ['*', 2.5, ['abs', ['get', 'centrelat']]]]]
+      }
+    })
+    app.map.addLayer({
+      id: 'world2',
+      type: 'fill-extrusion',
+      source: 'world',
+      paint: {
+        'fill-extrusion-height': ['*', 10000, ['abs', ['get', 'centrelat']]],
+        'fill-extrusion-color': ['rgb', ['-', 255, ['*', 2.5, ['abs', ['get', 'centrelat']]]], ['-', 255, ['*', 2.5, ['abs', ['get', 'centrelat']]]], ['-', 255, ['*', 2.5, ['abs', ['get', 'centrelat']]]]]
+      }
+    })
+    app.gj.features.forEach(f=>{
+      const h = `<span>${f.properties.NAME}</span>`
+      const ll = {lng: f.properties.centrelon, lat: f.properties.centrelat}
+      f.properties.popup = new maplibregl.Popup({'maxWidth':'320px'}).setLngLat(ll).setHTML(h).addTo(app.map)
+      f.properties.popup.remove()
+    })
+    app.map.on('click', 'world', e=>{
+      app.gj.features.filter(f=>f.properties.NAME==e.features[0].properties.NAME)[0].properties.popup.addTo(app.map)
+    })
+    app.map.on('mouseenter', 'world', () => {
+      app.map.getCanvas().style.cursor = 'pointer';
+    });
+    app.map.on('mouseleave', 'world', () => {
+      app.map.getCanvas().style.cursor = '';
+    });
+  }
+})
+</script>
+</body>
+</html>
