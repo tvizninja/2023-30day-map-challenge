@@ -45,6 +45,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/13-choropleth/viz/)
   - シンプルに、国のcentroidの緯度が高い所ほど暗く塗分け。
 - 14. Europe, The westernmost peninsulas of Eurasia
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/14-europe/viz/)
+  - 全ての道はローマに…。AWMC(Ancient World Mapping Center)のデータより、ヨーロッパの歴史的道路。
 - 15. OpenStreetMap, The greatest of the datasets. Remember to give credit.
 - 16. Oceania Region, made up of thousands of islands throughout the Central and South Pacific
 - 17. Flow, Flow of transport, people
