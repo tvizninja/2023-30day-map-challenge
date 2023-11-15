@@ -48,6 +48,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/14-europe/viz/)
   - 全ての道はローマに…。AWMC(Ancient World Mapping Center)のデータより、ヨーロッパの歴史的道路。
 - 15. OpenStreetMap, The greatest of the datasets. Remember to give credit.
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/15-osm/viz/)
+  - OSMをデータソースに、Mapbox pencilスタイルを引用し、自分で少しマップスタイルをカスタマイズした、鉛筆風地図。
 - 16. Oceania Region, made up of thousands of islands throughout the Central and South Pacific
 - 17. Flow, Flow of transport, people
 - 18. Atmosphere Conditions, of the atmosphere can be either weather or climate
