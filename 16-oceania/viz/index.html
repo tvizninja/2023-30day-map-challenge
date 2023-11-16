@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>16-oceania</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.js'></script>
+  <script src='https://unpkg.com/@turf/turf@6.5.0/turf.min.js'></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    html, body, #map { width: 100%; height: 100% }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+app = {}
+
+// load data
+window.fetch('japan.geojson')
+  .then(r=>r.json())
+  .then(j=>{
+    //j=turf.transformTranslate(j, turf.rhumbDistance(turf.point([135, 0]), turf.point([135, 35])), -180)
+    //j=turf.transformTranslate(j, turf.rhumbDistance(), -180)
+    j.features = j.features.map(f=>{
+      f.geometry.coordinates = f.geometry.coordinates.map(c0=> c0.map(c1=> c1.map(c2=> [c2[0]+45, -c2[1]])))
+      return f
+    })
+    app.japan=j
+  }).then(()=>app.map.fire('loadedData'))
+
+// map init
+app.map = new maplibregl.Map({
+  container: 'map',
+  style: {
+    version: 8,
+    name: 'osm',
+    sources: {
+      openmaptiles: {
+        type: 'vector',
+        url: 'https://tile2.openstreetmap.jp/data/planet.json'
+      }
+    },
+    sprite: 'https://tile2.openstreetmap.jp/styles/osm-bright/sprite',
+    glyphs: 'https://tile2.openstreetmap.jp/fonts/{fontstack}/{range}.pbf',
+    layers: [{
+      id: 'water',
+      type: 'fill',
+      source: 'openmaptiles',
+      'source-layer': 'water',
+      paint: { 'fill-color': '#444' }
+    },{
+      id: 'landcover',
+      type: 'fill',
+      source: 'openmaptiles',
+      'source-layer': 'landcover',
+      paint: { 'fill-color': '#666' }
+    }]
+  },
+  center: [175, -40],
+  zoom: 4,
+  maxZoom: 6
+})
+app.map.on('load', ()=>{
+  app.map.addControl(new maplibregl.NavigationControl('top-right'))
+})
+
+// dataviz
+app.map.on('loadedData', ()=>{
+  if(!app.map.isStyleLoaded()){
+    setTimeout(()=>app.map.fire('loadedData'), 500)
+  }else{
+    app.map.addSource('japan', {
+      type: 'geojson',
+      data: app.japan,
+      attribution: '<a href="https://japonyol.net/editor/article/47-prefectures-geojson.html" target="_blank">japonyol.net</a>'
+    })
+    app.map.addLayer({
+      id: 'japan',
+      type: 'fill',
+      source: 'japan',
+      paint: { 'fill-color': '#ecc', 'fill-outline-color': '#f88' }
+    })
+  }
+})
+</script>
+</body>
+</html>
