@@ -57,6 +57,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/17-flow/viz/)
   - 航空輸送統計調査、国内定期航空空港間旅客流動表より。データの加工に時間がかかった…。Arc表現がよさそうだったので、deck.glで。
 - 18. Atmosphere Conditions, of the atmosphere can be either weather or climate
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/18-atmosphere/viz/)
+  - ECMWFから、地表(海上)のNO2濃度データ、2023/11/18の予測値。海上に見える線は、船がよく通る航路なんだとか。
 - 19. 5-minute map, Spend no more than 5 minutes to prepare this map
 - 20. Outdoors, Map of mountains, trails, or something completely different
 - 21. Raster, Pixels, please
