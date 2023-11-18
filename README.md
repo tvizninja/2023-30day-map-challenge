@@ -53,8 +53,9 @@
 - 16. Oceania Region, made up of thousands of islands throughout the Central and South Pacific
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/16-oceania/viz/)
   - 日本をニュージーランド付近に置いてみた。ニュージーランドは日本の7割程度の面積。思ったより緯度高いのだな、と。
-  - OSMをデータソースに、Mapbox pencilスタイルを引用し、自分で少しマップスタイルをカスタマイズした、鉛筆風地図。
 - 17. Flow, Flow of transport, people
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/17-flow/viz/)
+  - 航空輸送統計調査、国内定期航空空港間旅客流動表より。データの加工に時間がかかった…。Arc表現がよさそうだったので、deck.glで。
 - 18. Atmosphere Conditions, of the atmosphere can be either weather or climate
 - 19. 5-minute map, Spend no more than 5 minutes to prepare this map
 - 20. Outdoors, Map of mountains, trails, or something completely different

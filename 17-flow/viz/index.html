@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>17-flow</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.js'></script>
+  <script src='https://unpkg.com/deck.gl@8.9.4/dist.min.js'></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    html, body, #map { width: 100%; height: 100% }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+app = {}
+
+// load data
+//window.fetch('data.geojson')
+window.fetch('deckarc.geojson')
+  .then(r=>r.json())
+  .then(j=>app.data=j)
+  .then(()=>app.map.fire('loadedData'))
+
+// map init
+app.map = new maplibregl.Map({
+  container: 'map',
+  style: {
+    version: 8,
+    name: 'osm',
+    sources: {
+      openmaptiles: {
+        type: 'vector',
+        url: 'https://tile2.openstreetmap.jp/data/planet.json',
+        attribution: '<a href="openstreetmap.jp" target="_blank">openstreetmap.jp</a>'
+      }
+    },
+    sprite: 'https://tile2.openstreetmap.jp/styles/osm-bright/sprite',
+    glyphs: 'https://tile2.openstreetmap.jp/fonts/{fontstack}/{range}.pbf',
+    layers: [{
+      id: 'water',
+      type: 'fill',
+      source: 'openmaptiles',
+      'source-layer': 'water',
+      paint: { 'fill-color': '#444' }
+    },{
+      id: 'landuse',
+      type: 'fill',
+      source: 'openmaptiles',
+      'source-layer': 'landuse',
+      paint: { 'fill-color': '#eee' }
+    },{
+      id: 'landcover',
+      type: 'fill',
+      source: 'openmaptiles',
+      'source-layer': 'landcover',
+      paint: { 'fill-color': '#eee' }
+    }]
+  },
+  center: [135, 35],
+  pitch: 60,
+  zoom: 4,
+  maxZoom: 10
+})
+app.map.on('load', ()=>{
+  app.map.addControl(new maplibregl.NavigationControl('top-right'))
+})
+
+// dataviz
+app.map.on('loadedData', ()=>{
+  if(!app.map.isStyleLoaded()){
+    setTimeout(()=>app.map.fire('loadedData'), 500)
+  }else{
+    app.map.addSource('attribution', {
+      type: 'geojson',
+      data: {type: 'FeatureCollection', features: []},
+      attribution: [
+        'https://www.e-stat.go.jp/dbview?sid=0003173907',
+        'https://ourairports.com/data/',
+        'https://maplibre.org/',
+        'https://deck.gl/'
+      ].map(a=>{
+        return `<a href='${a}' target='_blank'>${a.split('/')[2]}</a>`
+      }).join(' | ')
+    })
+    app.map.addLayer({
+      id: 'attribution',
+      type: 'circle',
+      source: 'attribution'
+    })
+    app.arc = new deck.ArcLayer({
+      id: 'arc',
+      data: app.data,
+      pickable: true,
+      getWidth: d => d.total/1000000 + 1,
+      getSourcePosition: d => d.from.coordinates,
+      getTargetPosition: d => d.to.coordinates,
+      getSourceColor: d => d.frcolor,
+      getTargetColor: d => d.tocolor
+    })
+    const overlay = new deck.MapboxOverlay({
+      interleaved: false,
+      layers: [app.arc],
+      getTooltip: d => {
+        let tt = null
+        const o = d.object
+        if(o && o.from && o.to){
+          tt = `${o.from.name} - ${o.to.name}: `
+          tt += `${o.total.toLocaleString('en-US')}(total 2006-2022)`
+          if(o.byyear){
+            const y = Math.max(...Object.keys(o.byyear))
+            tt += ` : ${o.byyear[y].toLocaleString('en-US')}(${y})`
+          }
+        }
+        return tt
+      }
+    })
+    app.map.addControl(overlay)
+    /* maplibre-line version // data.geojson
+    app.map.addSource('data', {
+      type: 'geojson',
+      data: app.data,
+      attribution: '<a href="https://www.e-stat.go.jp/dbview?sid=0003173907" target="_blank">e-stat.go.jp</a><a href="https://ourairports.com/data/" target="_blank">ourairports.com</a>'
+    })
+    app.map.addLayer({
+      id: 'data',
+      type: 'line',
+      source: 'data',
+      paint: {
+        'line-color': '#448',
+        'line-width': ['+', ['/', ['get', 'total'], 1000000], .1]
+      }
+    })
+    */
+  }
+})
+</script>
+</body>
+</html>
