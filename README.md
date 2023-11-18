@@ -60,6 +60,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/18-atmosphere/viz/)
   - ECMWFから、地表(海上)のNO2濃度データ、2023/11/18の予測値。海上に見える線は、船がよく通る航路なんだとか。
 - 19. 5-minute map, Spend no more than 5 minutes to prepare this map
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/19-5min/viz/)
+  - 5分で制作。海を緑、陸を青で。海と陸があべこべの地球を想像してみる。イースター島が砂漠のオアシスになりそう。
 - 20. Outdoors, Map of mountains, trails, or something completely different
 - 21. Raster, Pixels, please
 - 22. North, is not always up ⬆️
