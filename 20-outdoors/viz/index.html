@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>20-outdoors</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.js'></script>
+  <style>
+    body { margin: 0; padding: 0; background-color: #22b;}
+    html, body, #map { width: 100%; height: 100% }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+app = {
+  trail: {
+    type: 'FeatureCollection',
+    features: [{
+      type: 'Feature',
+      properties: {n : 0},
+      geometry: {
+        type: 'LineString',
+        coordinates: [[138.73, 35.35], [138.73, 35.35]]
+      }
+    }]
+  }
+}
+
+// map init
+app.map = new maplibregl.Map({
+  container: 'map',
+  style: {
+    version: 8,
+    name: 'osm',
+    sources: {
+      seamlessphoto:{
+        type: 'raster',
+        tiles: ['https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg'],
+        attribution: '<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank">GSI.go.jp</a>'
+      },
+      gsidem:{
+        type: 'raster-dem',
+        tiles: ['gsidem://cyberjapandata.gsi.go.jp/xyz/dem_png/{z}/{x}/{y}.png'],
+        tileSize: 256
+      },
+      trail:{
+        type: 'geojson',
+        data: app.trail
+      }
+    },
+    layers: [{
+      id: 'seamlessphoto',
+      type: 'raster',
+      source: 'seamlessphoto'
+    },{
+      id: 'trail',
+      type: 'line',
+      source: 'trail',
+      paint: {
+        'line-width': 4,
+        'line-color': '#a22'
+      }
+    }],
+    terrain: {
+      source: 'gsidem',
+      exaggeration: 2
+    }
+  },
+  pitch: 60,
+  center: [138.73, 35.35],
+  zoom: 12,
+  maxZoom: 14
+})
+app.map.on('load', ()=>{
+  app.map.addControl(new maplibregl.NavigationControl('top-right'))
+})
+
+// code from https://qiita.com/Kanahiro/items/1e9c1a4ad6be76b27f0f
+const gsidem2height = (r, g, b) => {
+  let height = r * 655.36 + g * 2.56 + b * 0.01
+  if (r === 128 && g === 0 && b === 0) {
+      height = 0
+  } else if (r >= 128) {
+      height -= 167772.16;
+  }
+  return height
+}
+const gsidem2terrainrgb = (r, g, b) => {
+  const height = (gsidem2height(r, g, b) + 100000)*10
+  const tB = (height / 256 - Math.floor(height / 256)) * 256
+  const tG = (Math.floor(height / 256) / 256 - Math.floor(Math.floor(height / 256) / 256)) * 256
+  const tR = (Math.floor(Math.floor(height / 256) / 256) / 256 - Math.floor(Math.floor(Math.floor(height / 256) / 256) / 256)) * 256
+  return [tR, tG, tB]
+}
+maplibregl.addProtocol('gsidem', (params, callback) => {
+    const image = new Image()
+    image.crossOrigin = ''
+    image.onload = () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = image.width
+        canvas.height = image.height
+        const context = canvas.getContext('2d')
+        context.drawImage(image, 0, 0)
+        const imageData = context.getImageData( 0, 0, canvas.width, canvas.height)
+        for (let i = 0; i < imageData.data.length / 4; i++) {
+            const tRGB = gsidem2terrainrgb( imageData.data[i * 4], imageData.data[i * 4 + 1], imageData.data[i * 4 + 2],)
+            imageData.data[i * 4]     = tRGB[0]
+            imageData.data[i * 4 + 1] = tRGB[1]
+            imageData.data[i * 4 + 2] = tRGB[2]
+        }
+        context.putImageData(imageData, 0, 0)
+        canvas.toBlob((blob) => blob.arrayBuffer().then((arr) => callback(null, arr, null, null)))
+    }
+    image.src = params.url.replace('gsidem://', 'https://')
+    return { cancel: () => {} }
+})
+
+const grand = (mean=0, stdev=1)=>{
+  return Math.sqrt( -2.0 * Math.log(1 - Math.random())) * Math.cos(2.0 * Math.PI * Math.random()) * stdev + mean
+}
+
+app.move = () => {
+  const n = app.trail.features.length
+  const last = app.trail.features[n-1].geometry.coordinates.at(-1)
+  const newp = [last[0]+grand(0, 0.001), last[1]+grand(0, 0.001)]
+  app.trail.features.push({
+    type: 'Feature',
+    properties: {n: n},
+    geometry: {
+      type: 'LineString',
+      coordinates: [last, newp]
+    }
+  })
+  app.map.setPaintProperty('trail', 'line-color',
+    ['rgba', ['*', 255, ['/', ['get', 'n'], n]], 32, 32, ['/', ['get', 'n'], n]]
+  )
+  app.map.getSource('trail').setData(app.trail)
+  if(n<10000){
+    setTimeout(app.move, 50)
+  }
+}
+
+// dataviz
+app.map.on('style.load', ()=>{
+  app.map.addSource('attribution', {
+    type: 'geojson',
+    data: {type: 'FeatureCollection', features: []},
+    attribution: [
+      'https://maplibre.org/'
+    ].map(a=>{
+      return `<a href='${a}' target='_blank'>${a.split('/')[2]}</a>`
+    }).join(' | ')
+  })
+  app.map.addLayer({
+    id: 'attribution',
+    type: 'circle',
+    source: 'attribution'
+  })
+  app.move()
+})
+</script>
+</body>
+</html>

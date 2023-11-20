@@ -63,6 +63,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/19-5min/viz/)
   - 5分で制作。海を緑、陸を青で。海と陸があべこべの地球を想像してみる。イースター島が砂漠のオアシスになりそう。
 - 20. Outdoors, Map of mountains, trails, or something completely different
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/20-outdoors/viz/)
+  - インドア派につきOutdoorsのリアルデータを持ち合わせないため、完全ランダムウォークによる富士山散歩。一万回の酔歩。
 - 21. Raster, Pixels, please
 - 22. North, is not always up ⬆️
 - 23. 3D, The third dimension
