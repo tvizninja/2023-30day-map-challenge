@@ -66,6 +66,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/20-outdoors/viz/)
   - インドア派につきOutdoorsのリアルデータを持ち合わせないため、完全ランダムウォークによる富士山散歩。一万回の酔歩。
 - 21. Raster, Pixels, please
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/21-raster/viz/)
+  - 地理院のラスタ写真を読み込み、そこからベクトルタイルをオンザフライで生成表示…特に意味はないけど、いつか何かに役立つだろう…
 - 22. North, is not always up ⬆️
 - 23. 3D, The third dimension
 - 24. Black & white, Only two colors allowed
