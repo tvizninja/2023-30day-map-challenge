@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>22-north</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.js'></script>
+  <script src='./pmtiles.js'></script>
+  <script src='https://unpkg.com/@turf/turf@6.5.0/turf.min.js'></script>
+  <style>
+body, html { width: 100%; height: 100%; margin: 0; padding: 0; }
+.maps { width:calc(50% - 4px); height: 99%; margin: 2px; padding: 0; outline: 1px solid #000; float: left }
+  </style>
+</head>
+<body>
+<div id='map-0' class="maps" comment=''></div>
+<div id='map-1' class="maps" comment=''></div>
+<script>
+app = {
+  //c: [[135.5, 34.7, 45], [139.87, 35.72, -45]], // capital std
+  //c: [[135.52, 34.686, 45], [139.691, 35.689, -45]], // station std
+  c: [[135.513, 34.646, 0], [139.811, 35.710, -90]], // osaka std
+  //c: [[135.513, 34.646, 90], [139.811, 35.710, 0]], // tokyo std
+  cnv: (lng, lat, nf) => {
+    const nt = (nf+1)%2
+    const b = turf.rhumbBearing( turf.point([app.c[nf][0], app.c[nf][1]]), turf.point([lng, lat]))
+    const d = turf.rhumbDistance(turf.point([app.c[nf][0], app.c[nf][1]]), turf.point([lng, lat]))
+    const g = turf.point([app.c[nt][0], app.c[nt][1]])
+    const r = turf.transformTranslate(g, d, b+(app.c[nt][2]-app.c[nf][2]))
+    return {lng: r.geometry.coordinates[0], lat: r.geometry.coordinates[1]}
+  }
+}
+
+// map init
+const pmp = new pmtiles.Protocol();
+maplibregl.addProtocol("pmtiles", pmp.tile);
+app.maps = app.c.map((c, i)=>{
+  return new maplibregl.Map({
+    container: `map-${i}`,
+    style: 'https://raw.githubusercontent.com/gsi-cyberjapan/optimal_bvmap/main/style/std.json',
+    //style: './gsi.json',
+    center: [c[0], c[1]],
+    bearing: c[2],
+    zoom: 9.5,
+    minZoom: 4,
+    maxZoom: 16,
+    maxBounds: [[115,15], [155,55]],
+    attributionControl: false
+  })
+})
+let flag = false
+
+app.maps.map((map, mapi)=>{
+  ['keyboard', 'dragRotate', 'boxZoom', 'doubleClickZoom', 'touchZoomRotate'].map(a=>map[a].disable())
+  if(mapi==0){ map.addControl(new maplibregl.AttributionControl({compact: true}), 'top-left')}
+  map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }))
+  map.on('load', ()=>{
+    map.on('moveend', e=>{
+      if(flag){return}
+      flag = true
+      const c = map.getCenter()
+      const r = app.cnv(c.lng, c.lat, mapi)
+      app.maps[(mapi+1)%2].setCenter(r)
+      app.maps[(mapi+1)%2].setZoom(app.maps[mapi].getZoom())
+      flag = false
+    })
+  })
+})
+</script>
+</body>
+</html>
