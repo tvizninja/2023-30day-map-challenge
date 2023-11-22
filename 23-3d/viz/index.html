@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>23-3d</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.js'></script>
+  <script src="https://unpkg.com/three@0.147.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
+  <style>
+    body { margin: 0; padding: 0; background-color: #22b;}
+    html, body, #map { width: 100%; height: 100% }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+app = {}
+
+// map init
+app.map = new maplibregl.Map({
+  container: 'map',
+  style: {
+    version: 8,
+    name: 'osm',
+    sources: {
+      seamlessphoto:{
+        type: 'raster',
+        tiles: ['https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg'],
+        attribution: '<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank">GSI.go.jp</a>'
+      },
+      gsidem:{
+        type: 'raster-dem',
+        tiles: ['gsidem://cyberjapandata.gsi.go.jp/xyz/dem_png/{z}/{x}/{y}.png'],
+        tileSize: 256
+      }
+    },
+    layers: [{
+      id: 'seamlessphoto',
+      type: 'raster',
+      source: 'seamlessphoto'
+    }],
+    terrain: {
+      source: 'gsidem',
+      exaggeration: 1
+    }
+  },
+  pitch: 60,
+  center: [138.73, 35.35],
+  zoom: 12,
+  maxZoom: 14
+})
+app.last = [138.73, 35.35]
+app.map.on('load', ()=>{
+  app.map.addControl(new maplibregl.NavigationControl('top-right'))
+})
+
+// code from https://qiita.com/Kanahiro/items/1e9c1a4ad6be76b27f0f
+const gsidem2height = (r, g, b) => {
+  let height = r * 655.36 + g * 2.56 + b * 0.01
+  if (r === 128 && g === 0 && b === 0) {
+      height = 0
+  } else if (r >= 128) {
+      height -= 167772.16;
+  }
+  return height
+}
+const gsidem2terrainrgb = (r, g, b) => {
+  const height = (gsidem2height(r, g, b) + 100000)*10
+  const tB = (height / 256 - Math.floor(height / 256)) * 256
+  const tG = (Math.floor(height / 256) / 256 - Math.floor(Math.floor(height / 256) / 256)) * 256
+  const tR = (Math.floor(Math.floor(height / 256) / 256) / 256 - Math.floor(Math.floor(Math.floor(height / 256) / 256) / 256)) * 256
+  return [tR, tG, tB]
+}
+maplibregl.addProtocol('gsidem', (params, callback) => {
+    const image = new Image()
+    image.crossOrigin = ''
+    image.onload = () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = image.width
+        canvas.height = image.height
+        const context = canvas.getContext('2d')
+        context.drawImage(image, 0, 0)
+        const imageData = context.getImageData( 0, 0, canvas.width, canvas.height)
+        for (let i = 0; i < imageData.data.length / 4; i++) {
+            const tRGB = gsidem2terrainrgb( imageData.data[i * 4], imageData.data[i * 4 + 1], imageData.data[i * 4 + 2],)
+            imageData.data[i * 4]     = tRGB[0]
+            imageData.data[i * 4 + 1] = tRGB[1]
+            imageData.data[i * 4 + 2] = tRGB[2]
+        }
+        context.putImageData(imageData, 0, 0)
+        canvas.toBlob((blob) => blob.arrayBuffer().then((arr) => callback(null, arr, null, null)))
+    }
+    image.src = params.url.replace('gsidem://', 'https://')
+    return { cancel: () => {} }
+});
+
+// init 3d
+app.set3d = pos => {
+  pos = pos || [138.73, 35.35]
+  app.td = {
+    modelOrigin : pos,
+    modelAltitude : 0,
+    modelRotate : [Math.PI / 2, 0, 0]
+  }
+  app.td.modelAsMercatorCoordinate = maplibregl.MercatorCoordinate.fromLngLat( app.td.modelOrigin, app.td.modelAltitude)
+  // transformation parameters to position, rotate and scale the 3D model onto the map
+  app.td.modelTransform = {
+      translateX: app.td.modelAsMercatorCoordinate.x,
+      translateY: app.td.modelAsMercatorCoordinate.y,
+      translateZ: app.td.modelAsMercatorCoordinate.z,
+      rotateX: app.td.modelRotate[0],
+      rotateY: app.td.modelRotate[1]-Math.PI/2,
+      rotateZ: app.td.modelRotate[2],
+      scale: app.td.modelAsMercatorCoordinate.meterInMercatorCoordinateUnits() * 1000
+  };
+  app.THREE = window.THREE;
+}
+app.set3d()
+
+app.cl = {
+  id: '3d-model',
+  type: 'custom',
+  renderingMode: '3d',
+  onAdd (map, gl) {
+    this.camera = new app.THREE.Camera();
+    this.scene = new app.THREE.Scene();
+    // create two three.js lights to illuminate the model
+    const directionalLight = new app.THREE.DirectionalLight(0xffffff);
+    directionalLight.position.set(0, -70, 0).normalize();
+    this.scene.add(directionalLight);
+    const directionalLight2 = new app.THREE.DirectionalLight(0xffffff);
+    directionalLight2.position.set(0, 70, 0).normalize();
+    this.scene.add(directionalLight2);
+    // use the three.js GLTF loader to add the 3D model to the three.js scene
+    const loader = new app.THREE.GLTFLoader();
+    loader.load( './Duck.gltf', (gltf) => { this.scene.add(gltf.scene); }
+    );
+    this.map = app.map;
+    // use the MapLibre GL JS map canvas for three.js
+    this.renderer = new app.THREE.WebGLRenderer({
+      canvas: app.map.getCanvas(),
+      context: gl,
+      antialias: true
+    });
+    this.renderer.autoClear = false;
+  },
+  render (gl, matrix) {
+    const rotationX = new app.THREE.Matrix4().makeRotationAxis(
+      new app.THREE.Vector3(1, 0, 0),
+      app.td.modelTransform.rotateX
+    );
+    const rotationY = new app.THREE.Matrix4().makeRotationAxis(
+      new app.THREE.Vector3(0, 1, 0),
+      app.td.modelTransform.rotateY
+    );
+    const rotationZ = new app.THREE.Matrix4().makeRotationAxis(
+      new app.THREE.Vector3(0, 0, 1),
+      app.td.modelTransform.rotateZ
+    );
+    const m = new app.THREE.Matrix4().fromArray(matrix);
+    const l = new app.THREE.Matrix4()
+      .makeTranslation(
+        app.td.modelTransform.translateX,
+        app.td.modelTransform.translateY,
+        app.td.modelTransform.translateZ
+      )
+      .scale(
+        new app.THREE.Vector3(
+          app.td.modelTransform.scale,
+          -app.td.modelTransform.scale,
+          app.td.modelTransform.scale
+        )
+      )
+      .multiply(rotationX)
+      .multiply(rotationY)
+      .multiply(rotationZ);
+    this.camera.projectionMatrix = m.multiply(l);
+    this.renderer.resetState();
+    this.renderer.render(this.scene, this.camera);
+    this.map.triggerRepaint();
+  }
+}
+
+// move
+const grand = (mean=0, stdev=1)=>{
+  return Math.sqrt( -2.0 * Math.log(1 - Math.random())) * Math.cos(2.0 * Math.PI * Math.random()) * stdev + mean
+}
+app.move = () => {
+  const newp = [app.last[0]+grand(0, 0.001), app.last[1]+grand(0, 0.001)]
+  app.last = newp
+  app.set3d(app.last)
+  app.cl.renderer.render(app.cl.scene, app.cl.camera)
+  app.map.setBearing(app.map.getBearing()+.5)
+  setTimeout(app.move, 50)
+}
+
+// dataviz
+app.map.on('style.load', ()=>{
+  app.map.addSource('attribution', {
+    type: 'geojson',
+    data: {type: 'FeatureCollection', features: []},
+    attribution: [
+      `<a href='https://maplibre.org/' target='_blank'>maplibre.org</a>`,
+      `<a href='https://github.com/alteous/glTF-Sample-Models-Official/tree/master/2.0/Duck' target='_blank'>SCEA</a>`
+    ].join(' | ')
+  })
+  app.map.addLayer({
+    id: 'attribution',
+    type: 'circle',
+    source: 'attribution'
+  })
+  app.map.addLayer(app.cl)
+  app.move()
+})
+</script>
+</body>
+</html>

@@ -72,6 +72,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/22-north/viz/)
   - 大阪と東京が似ている？と話題になっていたので、動かせる地図にしてみた。が、関西の土地勘がなくイマイチ分からん。
 - 23. 3D, The third dimension
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/23-3d/viz/)
+  - いろいろ試しているうちに迷走してしまって、気づいたらアヒルが富士山を襲撃していた…
 - 24. Black & white, Only two colors allowed
 - 25. Antarctica, A cold continent that can't be reached with Web Mercator
 - 26. Minimal, Less is more
