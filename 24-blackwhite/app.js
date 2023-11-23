@@ -111,7 +111,7 @@ app.map = new maplibregl.Map({
         "minzoom": 4,
         "maxzoom": 14,
         "paint": {
-          "line-color": "#222",
+          "line-color": "#eee",
           "line-width": 2
         }
       }
