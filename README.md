@@ -75,6 +75,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/23-3d/viz/)
   - いろいろ試しているうちに迷走してしまって、気づいたらアヒルが富士山を襲撃していた…
 - 24. Black & white, Only two colors allowed
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/24-blackwhite/viz/)
+  - Joy Division風？ラスタタイルからベクトルタイルを動的生成する技術を活用。多分GLのレンダラを書く方が効率的なんだろうが…
 - 25. Antarctica, A cold continent that can't be reached with Web Mercator
 - 26. Minimal, Less is more
 - 27. Dot, Dot density, a single dot in space or something different
