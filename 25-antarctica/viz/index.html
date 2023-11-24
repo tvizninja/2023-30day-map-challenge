@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>25-antarctica</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src='https://unpkg.com/deck.gl@8.9.4/dist.min.js'></script>
+  <style>
+    body { margin: 0; padding: 0; background-color: #111}
+    html, body, #map { width: 100%; height: 100% }
+  </style>
+</head>
+<body>
+<script>
+console.log('all data from ["https://www.openstreetmap.jp/", "https://www.ncei.noaa.gov/products/wandering-geomagnetic-poles"]')
+app = {}
+
+window.fetch('igrf.tsv')
+  .then(r=>r.text())
+  .then(t=>{
+    const lines = t.split("\n").map(line=>{
+      return line.split("\t")
+    })
+    const header = lines.shift()
+    const data = lines.map(line=>{
+      return Object.fromEntries(header.map((a,i)=>[header[i], parseFloat(line[i])]))
+    })
+    app.igrf = {
+      type: 'FeatureCollection',
+      features: data.map(d=>{
+        return {
+          type: 'Feature',
+          properties: {year: d.year},
+          geometry: { type: 'Point', coordinates: [d.lng, d.lat] }
+        }
+        return Object.fromEntries(header.map((a,i)=>[header[i], parseFloat(line[i])]))
+      })
+    }
+    app.igrf.features.push({
+      type: 'Feature',
+      properties: {},
+      geometry: { type: 'LineString', coordinates: app.igrf.features.map(f=>f.geometry.coordinates) }
+    })
+  }).then(()=>{
+    document.querySelector('body').dispatchEvent(new Event("loadedData"))
+  })
+
+document.querySelector('body').addEventListener('loadedData', ()=>{
+  app.deck = new deck.DeckGL({
+    views: new deck._GlobeView({ resolution: 1 }),
+    initialViewState: {
+      longitude: 135,
+      latitude: -90,
+      zoom: 2,
+      minZoom: 2,
+      maxZoom: 8
+    },
+    controller: true,
+    getTooltip: ({object}) => object?.properties?.year?.toString(),
+    layers: [
+      new deck.GeoJsonLayer({
+        id: 'background',
+        data: {type: 'FeatureCollection', features: [{
+          type: 'Feature',
+          properties: {},
+          geometry: { type: 'Polygon', coordinates: [[[-180, 90], [180, 90], [180, -90], [-180, -90], [-180, 90]]] }
+        }]},
+        filled: true,
+        getFillColor: [192, 192, 192]
+      }),
+      new deck.MVTLayer({
+        data: 'https://tile2.openstreetmap.jp/data/planet/{z}/{x}/{y}.pbf',
+        minZoom: 2,
+        maxZoom: 8,
+        getFillColor: f => {
+          if(f.properties.layerName.match(/land/)){
+            return [192, 192, 192]
+          }else{
+            return [32, 32, 32]
+          }
+        },
+        lineWidthMinPixels: 0
+      }),
+      new deck.GeoJsonLayer({
+        id: 'igrf',
+        data: app.igrf,
+        pickable: true,
+        stroked: false,
+        getLineColor: [128, 128, 224],
+        lineWidthMinPixels: 8,
+        getFillColor: [64, 64, 224],
+        getPointRadius: 2000
+      })
+    ]
+  })
+})
+</script>
+</body>
+</html>

@@ -78,6 +78,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/24-blackwhite/viz/)
   - Joy Division風？ラスタタイルからベクトルタイルを動的生成する技術を活用。多分GLのレンダラを書く方が効率的なんだろうが…
 - 25. Antarctica, A cold continent that can't be reached with Web Mercator
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/25-antarctica/viz/)
+  - 南の磁極の歴史的変遷をプロット(データ from NOAA)。1960年代から、南極大陸を飛び出している。南極点とは結構違うんですね。
 - 26. Minimal, Less is more
 - 27. Dot, Dot density, a single dot in space or something different
 - 28. Is this a chart or a map?, In thematic maps, you can't always tell. Try to stretch the limits
