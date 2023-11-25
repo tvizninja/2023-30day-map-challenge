@@ -43,13 +43,13 @@ app.maps = [0, 1].map(i=>{
         'source-layer': 'minimal',
         layout: {
           'text-ignore-placement': true,
-          'text-size': ['interpolate', ['linear'], ['zoom'], 4, 8, 14, 20],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 4, 2, 14, 20],
           'text-font': ['NotoSansCJKjp-Regular'],
           'text-field': '{m}'
         },
         paint: {
-          'text-halo-blur': 4,
-          'text-halo-width': 2,
+          'text-halo-blur': 2,
+          'text-halo-width': 1,
           'text-halo-color': 'rgba(24, 128, 24, 224)',
           'text-color': '#6d6'
         }
