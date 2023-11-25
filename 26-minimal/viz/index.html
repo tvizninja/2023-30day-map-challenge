@@ -66,7 +66,7 @@ app.maps = [0, 1].map(i=>{
 let flag = false
 
 app.maps[1].on('load', ()=>{
-  app.maps[1].addControl(new maplibregl.NavigationControl('top-right'))
+  app.maps[1].addControl(new maplibregl.NavigationControl(), 'top-right')
   app.maps[1].addSource('attribution', {
     type: 'geojson',
     data: {type: 'FeatureCollection', features: []},
@@ -87,14 +87,14 @@ app.maps[1].on('load', ()=>{
 
 // dataviz
 app.maps.map((map, mapi)=>{
-  ['keyboard', 'dragRotate', 'boxZoom', 'doubleClickZoom', 'touchZoomRotate'].map(a=>map[a].disable())
+  ['keyboard', 'dragRotate', 'touchPitch'].map(a=>map[a].disable())
   map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }))
   map.on('load', ()=>{
     map.on('moveend', e=>{
       if(flag){return}
       flag = true
-      const c = map.getCenter()
-      app.maps[(mapi+1)%2].setCenter(c)
+      app.maps[(mapi+1)%2].setCenter(map.getCenter())
+      app.maps[(mapi+1)%2].setBearing(map.getBearing())
       app.maps[(mapi+1)%2].setZoom(app.maps[mapi].getZoom())
       flag = false
     })
