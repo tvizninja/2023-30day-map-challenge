@@ -1,0 +1,16 @@
+{
+"name": "minimal",
+"description": "minimal",
+"version": "2",
+"minzoom": "1",
+"maxzoom": "14",
+"center": "135.758057,35.003003,14",
+"bounds": "122.945289,20.424931,153.983711,45.516416",
+"antimeridian_adjusted_bounds": "122.945289,20.424931,153.983711,45.516416",
+"type": "overlay",
+"strategies": "[{},{\"dropped_by_rate\":214645},{\"dropped_by_rate\":214643},{\"dropped_by_rate\":252566},{\"dropped_by_rate\":228891},{\"dropped_by_rate\":222377},{\"dropped_by_rate\":226453},{\"dropped_by_rate\":228843},{\"dropped_by_rate\":227908},{\"dropped_by_rate\":228676},{\"dropped_by_rate\":225237},{\"dropped_by_rate\":214877},{\"dropped_by_rate\":188823},{\"dropped_by_rate\":127226},{}]",
+"format": "pbf",
+"generator": "tippecanoe v2.37.0",
+"generator_options": "tippecanoe -l minimal -e minimal -Z1 -z14 -pf -M 2000000 -P -pC minimal.fgb",
+"json": "{\"vector_layers\":[{\"id\":\"minimal\",\"description\":\"\",\"minzoom\":1,\"maxzoom\":14,\"fields\":{\"m\":\"String\"}}],\"tilestats\":{\"layerCount\":1,\"layers\":[{\"layer\":\"minimal\",\"count\":214647,\"geometry\":\"Point\",\"attributeCount\":1,\"attributes\":[{\"attribute\":\"m\",\"count\":1000,\"type\":\"string\",\"values\":[\"\",\"1\",\"2\",\"3\",\"4\",\"5\",\"6\",\"7\",\"8\",\"9\",\"A\",\"C\",\"E\",\"F\",\"H\",\"I\",\"J\",\"K\",\"L\",\"N\",\"O\",\"S\",\"T\",\"W\",\"y\",\"〇\",\"『\",\"〵\",\"あ\",\"い\",\"う\",\"え\",\"お\",\"か\",\"き\",\"く\",\"ぐ\",\"け\",\"こ\",\"ご\",\"さ\",\"し\",\"じ\",\"す\",\"せ\",\"そ\",\"た\",\"ち\",\"つ\",\"づ\",\"で\",\"と\",\"ど\",\"な\",\"に\",\"ぬ\",\"の\",\"は\",\"ば\",\"ひ\",\"び\",\"ふ\",\"へ\",\"ほ\",\"ま\",\"み\",\"む\",\"め\",\"も\",\"や\",\"ゆ\",\"よ\",\"り\",\"わ\",\"ア\",\"イ\",\"ウ\",\"エ\",\"オ\",\"カ\",\"ガ\",\"キ\",\"ギ\",\"ク\",\"グ\",\"ケ\",\"コ\",\"ゴ\",\"サ\",\"シ\",\"ジ\",\"ス\",\"ズ\",\"セ\",\"ゼ\",\"ソ\",\"タ\",\"ダ\",\"チ\",\"ツ\"]}]}]}}"
+}
