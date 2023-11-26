@@ -84,6 +84,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/26-minimal/viz/)
   - なんて地名だい？贅沢な地名だね！地名なんて最初の一文字があれば十分…か？…OSMの日本国内のname(place)から最初の一文字だけを抽出。
 - 27. Dot, Dot density, a single dot in space or something different
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/27-dot/viz/)
+  - deck.gl、このdotScreenなどのエフェクトが気になっていて、一度触ってみたかった。質感のある地図良いな～
 - 28. Is this a chart or a map?, In thematic maps, you can't always tell. Try to stretch the limits
 - 29. Population, A classic theme for a map
 - 30. "My favorite..", You choose!

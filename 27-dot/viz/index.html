@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <title>27-dot</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src='https://unpkg.com/deck.gl@8.9.4/dist.min.js'></script>
+  <script src='https://unpkg.com/@luma.gl/shadertools@8.5.21/dist/dist.min.js'></script>
+  <style>
+    body { margin: 0; padding: 0; background-color: #111;}
+    html, body, #map { width: 100%; height: 100% }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+app = {
+  initialViewState: { longitude: 135, latitude: 35, zoom: 3, maxZoom: 10},
+  layers: [
+    new deck.GeoJsonLayer({
+      id: 'background',
+      data: {type: 'FeatureCollection', features: [{
+        type: 'Feature',
+        properties: {},
+        geometry: { type: 'Polygon', coordinates: [[[-180, 90], [180, 90], [180, -90], [-180, -90], [-180, 90]]] }
+      }]},
+      filled: true,
+      getFillColor: [255, 255, 255]
+    }),
+    new deck.MVTLayer({
+      id: 'osm',
+      data: 'https://tile2.openstreetmap.jp/data/planet.json'
+    })
+  ],
+  effects: [
+    new deck.PostProcessEffect(luma.brightnessContrast, { brightness: .5, contrast: .5 }),
+    new deck.PostProcessEffect(luma.vignette, {}),
+    new deck.PostProcessEffect(luma.noise, { amount: .4 }),
+    new deck.PostProcessEffect(luma.dotScreen, {size: 2}),
+    new deck.PostProcessEffect(luma.magnify, {screenXY: [.5, .5]}),
+  ]
+}
+
+app.map = new deck.Deck({
+  parent: document.querySelector('#map'),
+  views: new deck._GlobeView(),
+  initialViewState: app.initialViewState,
+  controller: true,
+  layers: app.layers,
+  effects: app.effects
+})
+</script>
+</body>
+</html>
