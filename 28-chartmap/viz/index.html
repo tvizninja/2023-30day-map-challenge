@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>28-chartmap</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.js'></script>
+  <style>
+body { margin: 0; padding: 0; }
+html, body, #map { height: 100% }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+app = {}
+
+// util
+const fmtnum = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+
+// load data
+window.fetch('pref.tsv')
+  .then(r=>r.text())
+  .then(t=>{
+    const lines = t.split("\n").filter(line=>line!='').map(line=>{
+      return line.split("\t")
+    })
+    const header = lines.shift()
+    const data = lines.map(line=>{
+      return Object.fromEntries(header.map((a,i)=>[header[i], i==1?line[i]:parseFloat(line[i])]))
+    })
+    const mksquare = (lat, lng) => {
+      r = 0.1
+      return {
+        type: 'Polygon',
+        coordinates: [[
+          [lng - r, lat + r],
+          [lng - r, lat - r],
+          [lng + r, lat - r],
+          [lng + r, lat + r],
+          [lng - r, lat + r]
+        ]]
+      }
+    }
+    app.data = {
+      type: 'FeatureCollection',
+      features: data.map(d=>{
+        return {
+          type: 'Feature',
+          properties: {pref: d.pref, pop2020: d.pop2020},
+          geometry: mksquare(d.lat, d.lng)
+        }
+      })
+    }
+  })
+  .then(()=>app.map.fire('loadedData'))
+
+// map init
+app.map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://gsi-cyberjapan.github.io/gsivectortile-mapbox-gl-js/pale.json',
+  center: [135, 35],
+  pitch: 30,
+  minZoom: 4,
+  maxZoom: 8,
+  zoom: 4
+})
+app.map.on('load', ()=>{
+  app.map.addControl(new maplibregl.NavigationControl('top-right'))
+})
+
+// dataviz
+app.map.on('loadedData', ()=>{
+  if(!app.map.isStyleLoaded()){
+    setTimeout(()=>app.map.fire('loadedData'), 500)
+  }else{
+    app.map.addSource('pref', {
+      type: 'geojson',
+      data: app.data,
+      attribution: [
+        '<a href="https://ja.wikipedia.org/wiki/%E9%83%BD%E9%81%93%E5%BA%9C%E7%9C%8C%E5%BA%81%E6%89%80%E5%9C%A8%E5%9C%B0" target="_blank">wikipedia.org</a>',
+        '<a href="https://www.e-stat.go.jp/stat-search/files?page=1&layout=datalist&toukei=00200521&tstat=000001136464&cycle=0&tclass1=000001136466&tclass2val=0" target="_blank">e-stat.go.jp</a>'
+      ].join(' | ')
+    })
+    app.map.addLayer({
+      id: 'pref',
+      type: 'fill-extrusion',
+      source: 'pref',
+      paint: {
+        'fill-extrusion-color': ['rgb', ['/', ['get', 'pop2020'], 56000], 64, 64],
+        'fill-extrusion-opacity': 0.8,
+        'fill-extrusion-height': ['/', ['get', 'pop2020'], 10]
+      }
+    })
+    app.data.features.forEach(f=>{
+      const h = `<span>${f.properties.pref}: ${fmtnum(f.properties.pop2020)}</span>`
+      const ll = {lng: f.geometry.coordinates[0][0][0], lat: f.geometry.coordinates[0][0][1]}
+      f.properties.popup = new maplibregl.Popup({'maxWidth':'320px'}).setLngLat(ll).setHTML(h).addTo(app.map)
+      f.properties.popup.remove()
+    })
+    app.map.on('click', 'pref', e=>{
+      app.data.features.filter(f=>f.properties.pref==e.features[0].properties.pref)[0].properties.popup.addTo(app.map)
+    })
+    app.map.on('mouseenter', 'pref', () => {
+      app.map.getCanvas().style.cursor = 'pointer';
+    })
+    app.map.on('mouseleave', 'pref', () => {
+      app.map.getCanvas().style.cursor = '';
+    });
+  }
+})
+</script>
+</body>
+</html>

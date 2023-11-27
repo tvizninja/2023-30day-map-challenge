@@ -87,5 +87,7 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/27-dot/viz/)
   - deck.gl、このdotScreenなどのエフェクトが気になっていて、一度触ってみたかった。質感のある地図良いな～
 - 28. Is this a chart or a map?, In thematic maps, you can't always tell. Try to stretch the limits
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/28-chartmap/viz/)
+  - Choropleth Mapに不向きな情報を地図上に乗せたいときに、地図上Bar Chart。これはこれで一長一短ですが。
 - 29. Population, A classic theme for a map
 - 30. "My favorite..", You choose!
