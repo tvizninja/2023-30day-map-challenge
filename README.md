@@ -90,4 +90,8 @@
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/28-chartmap/viz/)
   - Choropleth Mapに不向きな情報を地図上に乗せたいときに、地図上Bar Chart。これはこれで一長一短ですが。
 - 29. Population, A classic theme for a map
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/29-population/viz/)
+  - あるアイデアを試したかったが、うまくいかず、中途半端に放り出す。ベクトルタイルは低ズーム時のデータ間引きに難があるので、ラスタタイルからベクトルタイルの生成を試みている。
 - 30. "My favorite..", You choose!
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/30-myfav/viz/)
+  - 
