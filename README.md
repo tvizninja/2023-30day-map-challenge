@@ -95,3 +95,6 @@
 - 30. "My favorite..", You choose!
   - [viz](https://tvizninja.github.io/2023-30day-map-challenge/30-myfav/viz/)
   - 今月やった中で気に入っている、標高表現をリメイク。データは産総研さんのDEMを使うことで世界地図に対応。30日間、ありがとうございました！
+- 31. "Someone's favorite..", Bonus map!
+  - [viz](https://tvizninja.github.io/2023-30day-map-challenge/31-tail/viz/)
+  - 一番見られた地名一文字地図。今度は末尾一文字で。末尾の「県郡市区町村、丁目」などは削ったけど完璧ではない。地名としての「～町」などもあり、取りすぎ良くないかな、と。

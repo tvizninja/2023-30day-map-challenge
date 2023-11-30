@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>31-tail</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.js'></script>
+  <style>
+body, html { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #eee;}
+.maps { height:calc(50% - 4px); width: 99%; margin: 2px; padding: 0; outline: 1px solid #000; float: left }
+  </style>
+</head>
+<body>
+<div id='map-0' class="maps" comment=''></div>
+<div id='map-1' class="maps" comment=''></div>
+<script>
+app = {}
+
+// map init
+app.maps = [0, 1].map(i=>{
+  return new maplibregl.Map({
+    container: `map-${i}`,
+    style: i?({
+      version: 8,
+      name: 'osm',
+      sources: {
+        osm: {
+          type: 'vector',
+          tiles: [document.URL.split('/').slice(0,-1).join('/') + "/tail/{z}/{x}/{y}.pbf"],
+          attribution: '<a href="https://www.openstreetmap.org/" target="_blank">openstreetmap.org</a>'
+        }
+      },
+      glyphs: 'https://maps.gsi.go.jp/xyz/noto-jp/{fontstack}/{range}.pbf',
+      layers: [{
+        id: 'background',
+        type: 'background',
+        paint: {'background-color': '#222'},
+      },{
+        id: 'tail',
+        type: 'symbol',
+        source: 'osm',
+        'source-layer': 'tail',
+        layout: {
+          'text-ignore-placement': true,
+          'text-size': ['interpolate', ['linear'], ['zoom'], 4, 2, 14, 20],
+          'text-font': ['NotoSansCJKjp-Regular'],
+          'text-field': '{name}'
+        },
+        paint: {
+          'text-halo-blur': 2,
+          'text-halo-width': 1,
+          'text-halo-color': 'rgba(24, 128, 24, 224)',
+          'text-color': '#6d6'
+        }
+      }]
+    }):('https://raw.githubusercontent.com/gsi-cyberjapan/gsivectortile-mapbox-gl-js/master/pale.json'),
+    center: [139, 36],
+    zoom: 6,
+    minZoom: 4,
+    maxZoom: 14,
+    maxBounds: [[115,15], [155,55]],
+    attributionControl: false
+  })
+})
+let flag = false
+
+app.maps[1].on('load', ()=>{
+  app.maps[1].addControl(new maplibregl.NavigationControl(), 'top-right')
+  app.maps[1].addSource('attribution', {
+    type: 'geojson',
+    data: {type: 'FeatureCollection', features: []},
+    attribution: [
+      'https://www.gsi.go.jp/',
+      'https://maplibre.org/'
+    ].map(a=>{
+      return `<a href='${a}' target='_blank'>${a.split('/')[2]}</a>`
+    }).join(' | ')
+  })
+  app.maps[1].addLayer({
+    id: 'attribution',
+    type: 'circle',
+    source: 'attribution'
+  })
+  app.maps[1].addControl(new maplibregl.AttributionControl({compact: true}), 'bottom-right')
+})
+
+// dataviz
+app.maps.map((map, mapi)=>{
+  ['keyboard', 'dragRotate', 'touchPitch'].map(a=>map[a].disable())
+  map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }))
+  map.on('load', ()=>{
+    map.on('moveend', e=>{
+      if(flag){return}
+      flag = true
+      app.maps[(mapi+1)%2].setCenter(map.getCenter())
+      app.maps[(mapi+1)%2].setBearing(map.getBearing())
+      app.maps[(mapi+1)%2].setZoom(app.maps[mapi].getZoom())
+      flag = false
+    })
+  })
+})
+</script>
+</body>
+</html>
