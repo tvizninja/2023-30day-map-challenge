@@ -1,0 +1,16 @@
+{
+  "name": "30-myfav",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "node ./node_modules/browserify/bin/cmd.js app.js -o viz/app.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "browserify": "^17.0.0",
+    "geojson-vt": "^3.2.1",
+    "vt-pbf": "^3.1.3"
+  }
+}
