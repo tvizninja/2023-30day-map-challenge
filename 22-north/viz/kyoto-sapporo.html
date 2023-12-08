@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <title>kyoto-sapporo</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@3.6/dist/maplibre-gl.js'></script>
+  <script src='./pmtiles.js'></script>
+  <script src='https://unpkg.com/@turf/turf@6.5.0/turf.min.js'></script>
+  <style>
+body, html { width: 100%; height: 100%; margin: 0; padding: 0; }
+.maps { width:calc(50% - 4px); height: 99%; margin: 2px; padding: 0; outline: 1px solid #000; float: left }
+  </style>
+</head>
+<body>
+<div id='map-0' class="maps" comment=''></div>
+<div id='map-1' class="maps" comment=''></div>
+<script>
+app = {
+  //c: [[130.42, 33.59, -200], [139.768, 35.681, 0]], // Fukuoka, Tokyo
+  c: [[135.759, 34.985, 0], [141.351, 43.0685, -10]], // Kyoto, Sapporo
+  //c: [[135.513, 34.646, 0], [139.811, 35.710, -90]], // Osaka, Tokyo
+  cnv: (lng, lat, nf) => {
+    const nt = (nf+1)%2
+    const b = turf.rhumbBearing( turf.point([app.c[nf][0], app.c[nf][1]]), turf.point([lng, lat]))
+    const d = turf.rhumbDistance(turf.point([app.c[nf][0], app.c[nf][1]]), turf.point([lng, lat]))
+    const g = turf.point([app.c[nt][0], app.c[nt][1]])
+    const r = turf.transformTranslate(g, d, b+(app.c[nt][2]-app.c[nf][2]))
+    return {lng: r.geometry.coordinates[0], lat: r.geometry.coordinates[1]}
+  }
+}
+
+// map init
+const pmp = new pmtiles.Protocol();
+maplibregl.addProtocol("pmtiles", pmp.tile);
+app.maps = app.c.map((c, i)=>{
+  return new maplibregl.Map({
+    container: `map-${i}`,
+    style: 'https://tile2.openstreetmap.jp/styles/osm-bright/style.json',
+    //style: 'https://raw.githubusercontent.com/gsi-cyberjapan/optimal_bvmap/main/style/std.json',
+    center: [c[0], c[1]],
+    bearing: c[2],
+    zoom: 12+1*((i%2)?(Math.log2(Math.cos(Math.PI*app.c[1][1]/180)/Math.cos(Math.PI*app.c[0][1]/180))):0),
+    minZoom: 4,
+    maxZoom: 16,
+    attributionControl: false
+  })
+})
+let flag = false
+
+app.maps.map((map, mapi)=>{
+  ['keyboard', 'dragRotate', 'boxZoom', 'doubleClickZoom', 'touchZoomRotate'].map(a=>map[a].disable())
+  if(mapi==0){ map.addControl(new maplibregl.AttributionControl({compact: true}), 'top-left')}
+  map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }))
+  map.on('load', ()=>{
+    map.addSource('center', {
+      type: 'geojson',
+      data: {type: 'FeatureCollection', features: [{properties:{}, geometry:{type:'Point', coordinates: app.c[mapi]}}]}
+    })
+    map.addLayer({
+      id: 'center',
+      type: 'circle',
+      source: 'center',
+      paint: { 'circle-radius': 5, 'circle-color': '#c44', }
+    })
+    map.on('moveend', e=>{
+      if(flag){return}
+      flag = true
+      const c = app.maps[mapi].getCenter()
+      const t = app.maps[(mapi+1)%2].getCenter()
+      const r = app.cnv(c.lng, c.lat, mapi)
+      app.maps[(mapi+1)%2].setCenter(r)
+      const z = app.maps[mapi].getZoom()+Math.log2(Math.cos(Math.PI*t.lat/180)/Math.cos(Math.PI*c.lat/180))
+      app.maps[(mapi+1)%2].setZoom(z)
+      flag = false
+    })
+  })
+})
+</script>
+</body>
+</html>

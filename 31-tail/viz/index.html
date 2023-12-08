@@ -17,6 +17,7 @@ body, html { width: 100%; height: 100%; margin: 0; padding: 0; background-color:
 <script>
 app = {}
 
+// memo: tippecanoe -e tail -l tail -Bg -Z4 -z14 -pf -M 2000000 -pC input.geojson
 // map init
 app.maps = [0, 1].map(i=>{
   return new maplibregl.Map({
