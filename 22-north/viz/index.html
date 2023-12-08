@@ -42,7 +42,7 @@ app.maps = app.c.map((c, i)=>{
     //style: './gsi.json',
     center: [c[0], c[1]],
     bearing: c[2],
-    zoom: 9.5,
+    zoom: 9+1*((i%2)?(Math.log2(Math.cos(Math.PI*app.c[1][1]/180)/Math.cos(Math.PI*app.c[0][1]/180))):0),
     minZoom: 4,
     maxZoom: 16,
     maxBounds: [[115,15], [155,55]],
@@ -56,13 +56,25 @@ app.maps.map((map, mapi)=>{
   if(mapi==0){ map.addControl(new maplibregl.AttributionControl({compact: true}), 'top-left')}
   map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }))
   map.on('load', ()=>{
+    map.addSource('center', {
+      type: 'geojson',
+      data: {type: 'FeatureCollection', features: [{properties:{}, geometry:{type:'Point', coordinates: app.c[mapi]}}]}
+    })
+    map.addLayer({
+      id: 'center',
+      type: 'circle',
+      source: 'center',
+      paint: { 'circle-radius': 5, 'circle-color': '#c44', }
+    })
     map.on('moveend', e=>{
       if(flag){return}
       flag = true
-      const c = map.getCenter()
+      const c = app.maps[mapi].getCenter()
+      const t = app.maps[(mapi+1)%2].getCenter()
       const r = app.cnv(c.lng, c.lat, mapi)
       app.maps[(mapi+1)%2].setCenter(r)
-      app.maps[(mapi+1)%2].setZoom(app.maps[mapi].getZoom())
+      const z = app.maps[mapi].getZoom()+Math.log2(Math.cos(Math.PI*t.lat/180)/Math.cos(Math.PI*c.lat/180))
+      app.maps[(mapi+1)%2].setZoom(z)
       flag = false
     })
   })
