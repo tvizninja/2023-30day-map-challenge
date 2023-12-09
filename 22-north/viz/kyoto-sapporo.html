@@ -50,9 +50,10 @@ app.maps = app.c.map((c, i)=>{
 let flag = false
 
 app.maps.map((map, mapi)=>{
-  ['keyboard', 'dragRotate', 'boxZoom', 'doubleClickZoom', 'touchZoomRotate'].map(a=>map[a].disable())
+  ['keyboard', 'dragRotate'].map(a=>map[a].disable())
   if(mapi==0){ map.addControl(new maplibregl.AttributionControl({compact: true}), 'top-left')}
   map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }))
+  map.touchZoomRotate.disableRotation()
   map.on('load', ()=>{
     map.addSource('center', {
       type: 'geojson',
